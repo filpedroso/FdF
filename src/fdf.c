@@ -3,82 +3,85 @@
 /*                                                        :::      ::::::::   */
 /*   fdf.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fpedroso <fpedroso@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/02/21 17:26:03 by fpedroso         ###   ########.fr       */
+/*   Updated: 2025/03/28 20:01:32 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
-
-static int	init_all(t_canvas *canvas);
 
 int	main(int argc, char **argv)
 {
 	t_canvas	*canvas;
 
 	if (argc != 2)
-		return (ft_printf("usage: ./fdf map.fdf"));
-	if (!init_all(canvas, argv[1]))
+	{
+		ft_putstr_fd("Usage: ./fdf <map.fdf>\n", 2);
 		return (1);
-	fdf_hub(canvas);
+	}
+	null_canvas(&canvas);
+	if (!parse_map(canvas->map, argv[1]))
+	{
+		perror("Invalid map or system error");
+		destroy_canvas(&canvas);
+		return (1);
+	}
+	if (!init_all(&canvas))
+	{
+		perror("Mlx initialization failed");
+		destroy_canvas(&canvas);
+		return (1);
+	}
+	fdf_hub(&canvas);
 	mlx_loop(canvas->connection);
+	destroy_canvas(&canvas);
 }
 
-static void	fdf_hub(t_canvas canvas)
+static void	fdf_hub(t_canvas *canvas)
 {
-	//TODO:
+	// loop
+	// 		Determine connections (right & bottom, if there is).
+	// 		Apply 3D rotation to each point.
+	// 		Project to 2D.
+	// 		Draw lines between points.
+	
+	// 2d projection formula:
+	//	screen_x = (x - y) * cos(30deg)
+	//	screen_y = (x + y) *sin(30deg) -z
+	// draw lines with bresenham:
+		// horizontal line	-> bres(x, y) & (x + 1, y)
+		// vertical line	-> bres(x, y) & (x, y + 1)
+	
+	int	idx;
+	int	x;
+	int	y;
+	int	z;
+	int	screen_x;
+	int	screen_y;
 
-		// understand how the image is ploted, to after create the dinamycs (rotate zoom etc)
-		// different aproaches if the image is firstly formed then manipulated, or if it has to be formed every time it is manipulated
+	idx = 0;
+	while(canvas->map->map_data[idx])
+	{
+		x = idx % canvas->map->width;
+		y = idx / canvas->map->width;
+		z = canvas->map->map_data[idx];
+		bresenham(())
+	}
 }
-
-static int	init_all(t_canvas *canvas, char *map_path)
-{
-	canvas->map = NULL;
-	canvas->image = NULL;
-	canvas->connection = mlx_init();
-	if (canvas->connection == NULL)
-		exit(1);
-	canvas->window = mlx_new_window(canvas->connection, HEIGHT, WIDTH, "FDF");
-	if (canvas->window == NULL)
-	{
-		destroy_canvas(canvas);
-		return (0);
-	}
-	canvas->image = mlx_new_image(canvas->connection, HEIGHT, WIDTH);
-	if (canvas->image == NULL)
-	{
-		destroy_canvas(canvas);
-		return (0);
-	}
-	canvas->map = parse_map(map_path);
-	if (canvas->map == NULL)
-	{
-		destroy_canvas(canvas);
-		return (0);
-	}
-	return (1);
-}
-
-
-
 
 // parse input map
-	// malloc a 2d array (via get_next_line) with proper error checking (GNL from intra)
-	// create function destroy_map for error checking and final
+// malloc a 2d array (via get_next_line) with proper error checking (GNL from intra)
+// create function destroy_map for error checking and final
 // init mlx, window and image
-	// create a struct with mlx and win pointers
-	// create a function that receives the struct via ref and initializes everything
-	// safety measures for all inits
+// create a struct with mlx and win pointers
+// create a function that receives the struct via ref and initializes everything
+// safety measures for all inits
 // fdf_hub function, receives the struct and parsed map
 // finish program with esc, with proper destructions
-	// create hook with mask for esc (re-watch oceano's video)
+// create hook with mask for esc (re-watch oceano's video)
 // function receives everything by reference, destroys it and exits
-
-
-
 
 /* Below is a conceptual discussion (no code) of how you can structure the parsing and rendering steps for maximum
 performance in C, formatted with a maximum width of 120 characters:

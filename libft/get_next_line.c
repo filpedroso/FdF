@@ -6,7 +6,7 @@
 /*   By: fpedroso <fpedroso@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 13:56:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2024/12/12 18:28:30 by fpedroso         ###   ########.fr       */
+/*   Updated: 2025/02/26 22:31:48 by fpedroso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ static char	*linefill(char *old, char *buuf)
 	buf_len = ft_strlen_nl(buuf);
 	line = (char *)malloc((old_len + buf_len + 1) * sizeof(char));
 	if (!line)
-		return (free(line), NULL);
+		return (free(old), NULL);
 	line[old_len + buf_len] = '\0';
 	i = -1;
 	while (++i < old_len)

@@ -6,7 +6,7 @@
 /*   By: fpedroso <fpedroso@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 16:12:28 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/01/06 12:31:42 by fpedroso         ###   ########.fr       */
+/*   Updated: 2025/02/26 21:30:51 by fpedroso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <string.h>
 # include <unistd.h>
 # include "ft_printf.h"
+# include "get_next_line.h"
 
 typedef struct s_list
 {
