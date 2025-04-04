@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/03/28 20:01:32 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/04/03 21:00:35 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,14 @@ int	main(int argc, char **argv)
 		ft_putstr_fd("Usage: ./fdf <map.fdf>\n", 2);
 		return (1);
 	}
-	null_canvas(&canvas);
+	null_canvas(canvas);
 	if (!parse_map(canvas->map, argv[1]))
 	{
 		perror("Invalid map or system error");
 		destroy_canvas(&canvas);
 		return (1);
 	}
-	if (!init_all(&canvas))
+	if (!init_all(canvas))
 	{
 		perror("Mlx initialization failed");
 		destroy_canvas(&canvas);
@@ -38,6 +38,53 @@ int	main(int argc, char **argv)
 	mlx_loop(canvas->connection);
 	destroy_canvas(&canvas);
 }
+//GPT code. Still to refactor
+
+static void	fdf_hub(t_canvas *canvas)
+{
+	int	idx;
+	int	width;
+	int	height;
+
+	idx = 0;
+	width = canvas->map->width;
+	height = canvas->map->height;
+	while (canvas->map->map_data[idx])
+	{
+		if ((idx % width) < (width - 1))
+			draw_if_valid(canvas, idx, idx + 1);
+		if ((idx / width) < (height - 1))
+			draw_if_valid(canvas, idx, idx + width);
+		idx++;
+	}
+	mlx_put_image_to_window(canvas->connection, canvas->window, canvas->img.img, 0, 0);
+}
+
+// these two below can be only one, by passing the char X or Y to tell which thing to return
+static int	screen_x(int idx, t_map *map)
+{
+	int	x = idx % map->width;
+	int	y = idx / map->width;
+	return (x - y) * cos(30 * M_PI / 180);
+}
+
+static int	screen_y(int idx, t_map *map)
+{
+	int	x = idx % map->width;
+	int	y = idx / map->width;
+	int	z = map->map_data[idx];
+	return (x + y) * sin(30 * M_PI / 180) - z;
+}
+
+static void	draw_if_valid(t_canvas *c, int a, int b)
+{
+	if (b < 0 || !c->map->map_data[b])
+		return ;
+	draw_line(c, screen_x(a, c->map), screen_y(a, c->map), screen_x(b, c->map), screen_y(b, c->map));
+}
+
+
+
 
 static void	fdf_hub(t_canvas *canvas)
 {
@@ -46,14 +93,14 @@ static void	fdf_hub(t_canvas *canvas)
 	// 		Apply 3D rotation to each point.
 	// 		Project to 2D.
 	// 		Draw lines between points.
-	
+
 	// 2d projection formula:
 	//	screen_x = (x - y) * cos(30deg)
 	//	screen_y = (x + y) *sin(30deg) -z
 	// draw lines with bresenham:
 		// horizontal line	-> bres(x, y) & (x + 1, y)
 		// vertical line	-> bres(x, y) & (x, y + 1)
-	
+
 	int	idx;
 	int	x;
 	int	y;
@@ -61,15 +108,40 @@ static void	fdf_hub(t_canvas *canvas)
 	int	screen_x;
 	int	screen_y;
 
+
+	if (x + 1 < canvas->map->width)
+		bresenham(screen_x, screen_y, next_screen_x, next_screen_y);
+	if (y + 1 < canvas->map->height)
+		bresenham(screen_x, screen_y, below_screen_x, below_screen_y);
+
+
+
 	idx = 0;
 	while(canvas->map->map_data[idx])
 	{
+		int	idx;
+
+
+
+
 		x = idx % canvas->map->width;
 		y = idx / canvas->map->width;
 		z = canvas->map->map_data[idx];
 		bresenham(())
+
 	}
 }
+
+static int s_x(int x, int y)
+{
+    return ((x - y) * cos(30 * M_PI / 180));
+}
+
+static int s_y(int x, int y, int z)
+{
+    return ((x + y) * sin(30 * M_PI / 180) - z);
+}
+
 
 // parse input map
 // malloc a 2d array (via get_next_line) with proper error checking (GNL from intra)

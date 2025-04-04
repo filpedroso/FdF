@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fdf.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fpedroso <fpedroso@student.42.fr>          +#+  +:+       +#+        */
+/*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/03/04 15:44:14 by fpedroso         ###   ########.fr       */
+/*   Updated: 2025/04/03 18:34:10 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "../resources/minilibx-linux/mlx.h"
 #include "../resources/minilibx-linux/mlx_int.h"
 #include "../libft/libft.h"
+#include <math.h>
 
 #define WIDTH 1200
 #define HEIGHT 800
