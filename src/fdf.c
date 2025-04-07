@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/04/07 15:15:32 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/04/07 15:49:57 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,21 +25,21 @@ int	main(int argc, char **argv)
 	if (!parse_map(canvas->map, argv[1]))
 	{
 		perror("Invalid map or system error");
-		destroy_canvas(&canvas);
+		destroy_canvas(canvas);
 		return (1);
 	}
 	if (!init_all(canvas))
 	{
 		perror("Mlx initialization failed");
-		destroy_canvas(&canvas);
+		destroy_canvas(canvas);
 		return (1);
 	}
-	fdf_hub(&canvas);
+	fdf_hub(canvas);
 	mlx_loop(canvas->connection);
-	destroy_canvas(&canvas);
+	destroy_canvas(canvas);
 }
 
-static void	fdf_hub(t_canvas *canvas)
+void	fdf_hub(t_canvas *canvas)
 {
 	int	idx;
 	int	width;
@@ -58,7 +58,7 @@ static void	fdf_hub(t_canvas *canvas)
 		0, 0);
 }
 
-static void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
+void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
 {
 	t_point	a_point;
 	t_point	b_point;
@@ -93,16 +93,26 @@ void	draw_line(t_canvas *canvas, t_point a_point, t_point b_point)
 	delta_y = abs(delta_y);
 	steep = delta_y > delta_x;
 	if (steep)
-		draw_steep(canvas->data_adr, a_point, b_point, up);
+		draw_steep(canvas, a_point, b_point, up);
 	else
 		draw_shallow(canvas, a_point, b_point, up);
 }
 
-void	draw_shallow(t_canvas canvas, t_point a_point, t_point b_point, int up)
+void	swap_points(t_point *a, t_point *b)
+{
+	t_point	temp;
+
+	temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+void	draw_shallow(t_canvas *canvas, t_point a_point, t_point b_point, int up)
 {
 	int	delta_x;
 	int	delta_y;
 	int	error;
+
 	if (!up)
 		up = -1;
 	delta_x = abs(b_point.x - a_point.x);
@@ -111,7 +121,7 @@ void	draw_shallow(t_canvas canvas, t_point a_point, t_point b_point, int up)
 	while (a_point.x <= b_point.x)
 	{
 		write_pixel(canvas, a_point.x, a_point.y, a_point.z);
-		a_point.x ++;
+		a_point.x++;
 		if (error >= 0)
 		{
 			a_point.y += up;
@@ -121,7 +131,7 @@ void	draw_shallow(t_canvas canvas, t_point a_point, t_point b_point, int up)
 	}
 }
 
-void	draw_steep(t_canvas canvas, t_point a_point, t_point b_point, int up)
+void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point, int up)
 {
 	int	delta_x;
 	int	delta_y;
@@ -138,7 +148,7 @@ void	draw_steep(t_canvas canvas, t_point a_point, t_point b_point, int up)
 		a_point.y += up;
 		if (error >= 0)
 		{
-			a_point.x ++;
+			a_point.x++;
 			error -= delta_x << 1;
 		}
 		error += delta_y << 1;
@@ -152,15 +162,17 @@ void	write_pixel(t_canvas *canvas, int x, int y, int z)
 
 	bytes_per_pixel = canvas->image->bpp >> 3;
 	z = z >> 1;
-	color = (sin(z) * 127 + 128) | (sin(z + 2) * 127 + 128) | (sin(z + 4) * 127 + 128);
-	if (x >= 0 && y >= 0 && x < canvas->image->width && y < canvas->image->height)
+	color = (int)(sin(z) * 127 + 128) | (int)(sin(z + 2) * 127
+			+ 128) | (int)(sin(z + 4) * 127 + 128);
+	if (x >= 0 && y >= 0 && x < canvas->image->width
+		&& y < canvas->image->height)
 	{
-		canvas->data_adr[y * canvas->image->size_line + x * bytes_per_pixel] = color;
+		canvas->data_adr[y * canvas->image->size_line + x
+			* bytes_per_pixel] = color;
 	}
 }
 
-
-static int	screen_coord(int idx, t_map *map, char coord)
+int	screen_coord(int idx, t_map *map, char coord)
 {
 	int	x;
 	int	y;

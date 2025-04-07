@@ -3,14 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   tools.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fpedroso <fpedroso@student.42.fr>          +#+  +:+       +#+        */
+/*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:30:18 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/03/04 20:01:04 by fpedroso         ###   ########.fr       */
+/*   Updated: 2025/04/07 15:48:53 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
+
+void	destroy_canvas(t_canvas *canvas)
+{
+	return ;
+}
 
 void	null_canvas(t_canvas *canvas)
 {
