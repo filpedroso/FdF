@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/04/03 18:34:10 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/04/04 15:03:21 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,14 @@
 #define WIDTH 1200
 #define HEIGHT 800
 #define BUFFER_SIZE 256
+
+typedef struct s_point
+{
+	int x;
+	int y;
+	int z;
+} 			t_point;
+
 
 typedef struct s_buffer
 {
@@ -58,10 +66,6 @@ int		parse_map(t_map *map, char *file_path);
 int		get_map_info(int *width, int *height, char* path);
 int		mapfill(t_map *map, int fd);
 int		get_line_length(int fd);
-void	null_canvas(t_canvas *canvas);
-int		init_all(t_canvas *canvas, char *file_path);
-int		gnl_by_ref(int fd, char **line);
-
 
 
 #endif

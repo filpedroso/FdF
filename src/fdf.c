@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/04/03 21:00:35 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/04/07 15:15:32 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,124 +38,152 @@ int	main(int argc, char **argv)
 	mlx_loop(canvas->connection);
 	destroy_canvas(&canvas);
 }
-//GPT code. Still to refactor
 
 static void	fdf_hub(t_canvas *canvas)
 {
 	int	idx;
 	int	width;
-	int	height;
 
 	idx = 0;
 	width = canvas->map->width;
-	height = canvas->map->height;
 	while (canvas->map->map_data[idx])
 	{
 		if ((idx % width) < (width - 1))
 			draw_if_valid(canvas, idx, idx + 1);
-		if ((idx / width) < (height - 1))
+		if ((idx / width) < (canvas->map->height - 1))
 			draw_if_valid(canvas, idx, idx + width);
 		idx++;
 	}
-	mlx_put_image_to_window(canvas->connection, canvas->window, canvas->img.img, 0, 0);
+	mlx_put_image_to_window(canvas->connection, canvas->window, canvas->image,
+		0, 0);
 }
 
-// these two below can be only one, by passing the char X or Y to tell which thing to return
-static int	screen_x(int idx, t_map *map)
+static void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
 {
-	int	x = idx % map->width;
-	int	y = idx / map->width;
-	return (x - y) * cos(30 * M_PI / 180);
-}
+	t_point	a_point;
+	t_point	b_point;
 
-static int	screen_y(int idx, t_map *map)
-{
-	int	x = idx % map->width;
-	int	y = idx / map->width;
-	int	z = map->map_data[idx];
-	return (x + y) * sin(30 * M_PI / 180) - z;
-}
-
-static void	draw_if_valid(t_canvas *c, int a, int b)
-{
-	if (b < 0 || !c->map->map_data[b])
-		return ;
-	draw_line(c, screen_x(a, c->map), screen_y(a, c->map), screen_x(b, c->map), screen_y(b, c->map));
-}
-
-
-
-
-static void	fdf_hub(t_canvas *canvas)
-{
-	// loop
-	// 		Determine connections (right & bottom, if there is).
-	// 		Apply 3D rotation to each point.
-	// 		Project to 2D.
-	// 		Draw lines between points.
-
-	// 2d projection formula:
-	//	screen_x = (x - y) * cos(30deg)
-	//	screen_y = (x + y) *sin(30deg) -z
-	// draw lines with bresenham:
-		// horizontal line	-> bres(x, y) & (x + 1, y)
-		// vertical line	-> bres(x, y) & (x, y + 1)
-
-	int	idx;
-	int	x;
-	int	y;
-	int	z;
-	int	screen_x;
-	int	screen_y;
-
-
-	if (x + 1 < canvas->map->width)
-		bresenham(screen_x, screen_y, next_screen_x, next_screen_y);
-	if (y + 1 < canvas->map->height)
-		bresenham(screen_x, screen_y, below_screen_x, below_screen_y);
-
-
-
-	idx = 0;
-	while(canvas->map->map_data[idx])
+	if (idx_b < 0 || !canvas->map->map_data[idx_b])
 	{
-		int	idx;
+		return ;
+	}
+	a_point.x = screen_coord(idx_a, canvas->map, 'x');
+	a_point.y = screen_coord(idx_a, canvas->map, 'y');
+	a_point.z = canvas->map->map_data[idx_a];
+	b_point.x = screen_coord(idx_b, canvas->map, 'x');
+	b_point.y = screen_coord(idx_b, canvas->map, 'y');
+	b_point.z = canvas->map->map_data[idx_b];
+	draw_line(canvas, a_point, b_point);
+}
 
+void	draw_line(t_canvas *canvas, t_point a_point, t_point b_point)
+{
+	int	delta_x;
+	int	delta_y;
+	int	steep;
+	int	up;
 
+	if (a_point.x > b_point.x)
+	{
+		swap_points(&a_point, &b_point);
+	}
+	delta_x = b_point.x - a_point.x;
+	delta_y = b_point.y - a_point.y;
+	up = delta_y < 0;
+	delta_y = abs(delta_y);
+	steep = delta_y > delta_x;
+	if (steep)
+		draw_steep(canvas->data_adr, a_point, b_point, up);
+	else
+		draw_shallow(canvas, a_point, b_point, up);
+}
 
-
-		x = idx % canvas->map->width;
-		y = idx / canvas->map->width;
-		z = canvas->map->map_data[idx];
-		bresenham(())
-
+void	draw_shallow(t_canvas canvas, t_point a_point, t_point b_point, int up)
+{
+	int	delta_x;
+	int	delta_y;
+	int	error;
+	if (!up)
+		up = -1;
+	delta_x = abs(b_point.x - a_point.x);
+	delta_y = b_point.y - a_point.y;
+	error = (delta_x << 1) - delta_y;
+	while (a_point.x <= b_point.x)
+	{
+		write_pixel(canvas, a_point.x, a_point.y, a_point.z);
+		a_point.x ++;
+		if (error >= 0)
+		{
+			a_point.y += up;
+			error -= delta_y << 1;
+		}
+		error += delta_x << 1;
 	}
 }
 
-static int s_x(int x, int y)
+void	draw_steep(t_canvas canvas, t_point a_point, t_point b_point, int up)
 {
-    return ((x - y) * cos(30 * M_PI / 180));
+	int	delta_x;
+	int	delta_y;
+	int	error;
+
+	if (!up)
+		up = -1;
+	delta_x = b_point.x - a_point.x;
+	delta_y = abs(b_point.y - a_point.y);
+	error = (delta_y << 1) - delta_x;
+	while (a_point.y <= b_point.y)
+	{
+		write_pixel(canvas, a_point.x, a_point.y, a_point.z);
+		a_point.y += up;
+		if (error >= 0)
+		{
+			a_point.x ++;
+			error -= delta_x << 1;
+		}
+		error += delta_y << 1;
+	}
 }
 
-static int s_y(int x, int y, int z)
+void	write_pixel(t_canvas *canvas, int x, int y, int z)
 {
-    return ((x + y) * sin(30 * M_PI / 180) - z);
+	int	color;
+	int	bytes_per_pixel;
+
+	bytes_per_pixel = canvas->image->bpp >> 3;
+	z = z >> 1;
+	color = (sin(z) * 127 + 128) | (sin(z + 2) * 127 + 128) | (sin(z + 4) * 127 + 128);
+	if (x >= 0 && y >= 0 && x < canvas->image->width && y < canvas->image->height)
+	{
+		canvas->data_adr[y * canvas->image->size_line + x * bytes_per_pixel] = color;
+	}
 }
 
 
-// parse input map
-// malloc a 2d array (via get_next_line) with proper error checking (GNL from intra)
-// create function destroy_map for error checking and final
-// init mlx, window and image
-// create a struct with mlx and win pointers
-// create a function that receives the struct via ref and initializes everything
-// safety measures for all inits
-// fdf_hub function, receives the struct and parsed map
+static int	screen_coord(int idx, t_map *map, char coord)
+{
+	int	x;
+	int	y;
+	int	z;
+
+	x = idx % map->width;
+	y = idx / map->width;
+	if (coord == 'x')
+	{
+		return ((x - y) * cos(30 * M_PI / 180));
+	}
+	z = map->map_data[idx];
+	return ((x + y) * sin(30 * M_PI / 180) - z);
+}
+
 // finish program with esc, with proper destructions
 // create hook with mask for esc (re-watch oceano's video)
 // function receives everything by reference, destroys it and exits
 
-/* Below is a conceptual discussion (no code) of how you can structure the parsing and rendering steps for maximum
+// ChatGPTips:
+
+/*
+Below is a conceptual discussion (no code) of how you can structure the parsing and rendering steps for maximum
 performance in C, formatted with a maximum width of 120 characters:
 
 File Reading and Parsing
@@ -328,4 +356,6 @@ Keep loops linear, minimize pointer overhead,
 	and consider parallelization if the data is large enough to benefit.
 These techniques will help you keep cache hits high,
 	reduce overhead from string parsing and repeated function calls,
-	and let the CPU spend its cycles on the actual line drawing rather than on data manipulation. */
+	and let the CPU spend its cycles on the actual line drawing rather than on data manipulation.
+
+	*/
