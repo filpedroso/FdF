@@ -14,29 +14,29 @@
 
 int	main(int argc, char **argv)
 {
-	t_canvas	*canvas;
+	t_canvas	canvas;
 
 	if (argc != 2)
 	{
 		ft_putstr_fd("Usage: ./fdf <map.fdf>\n", 2);
 		return (1);
 	}
-	null_canvas(canvas);
-	if (!parse_map(canvas->map, argv[1]))
+	null_canvas(&canvas);
+	if (!parse_map(canvas.map, argv[1]))
 	{
 		perror("Invalid map or system error");
-		destroy_canvas(canvas);
+		destroy_canvas(&canvas);
 		return (1);
 	}
-	if (!init_all(canvas))
+	if (!init_all(&canvas))
 	{
 		perror("Mlx initialization failed");
-		destroy_canvas(canvas);
+		destroy_canvas(&canvas);
 		return (1);
 	}
-	fdf_hub(canvas);
-	mlx_loop(canvas->connection);
-	destroy_canvas(canvas);
+	fdf_hub(&canvas);
+	mlx_loop(canvas.connection);
+	destroy_canvas(&canvas);
 }
 
 void	fdf_hub(t_canvas *canvas)
@@ -160,14 +160,14 @@ void	write_pixel(t_canvas *canvas, int x, int y, int z)
 	int	color;
 	int	bytes_per_pixel;
 
-	bytes_per_pixel = canvas->image->bpp >> 3;
+	bytes_per_pixel = canvas->bpp >> 3;
 	z = z >> 1;
 	color = (int)(sin(z) * 127 + 128) | (int)(sin(z + 2) * 127
 			+ 128) | (int)(sin(z + 4) * 127 + 128);
-	if (x >= 0 && y >= 0 && x < canvas->image->width
-		&& y < canvas->image->height)
+	if (x >= 0 && y >= 0 && x < WIDTH
+		&& y < HEIGHT)
 	{
-		canvas->data_adr[y * canvas->image->size_line + x
+		canvas->data_adr[y * canvas->size_line + x
 			* bytes_per_pixel] = color;
 	}
 }

@@ -13,10 +13,9 @@
 #ifndef FDF_H
 # define FDF_H
 
-#include "../resources/minilibx-linux/mlx.h"
-#include "../resources/minilibx-linux/mlx_int.h"
 #include "../libft/libft.h"
 #include <math.h>
+#include <mlx.h>
 
 #define WIDTH 1200
 #define HEIGHT 800
@@ -28,7 +27,6 @@ typedef struct s_point
 	int y;
 	int z;
 } 			t_point;
-
 
 typedef struct s_buffer
 {
@@ -44,12 +42,11 @@ typedef struct s_map
 	int	width;
 }			t_map;
 
-
 typedef struct	s_canvas
 {
 	void	*connection;
 	void	*window;
-	t_img	*image;
+	void	*image;
 	char	*data_adr;
 	int		size_line;
 	int		endian;

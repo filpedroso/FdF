@@ -12,12 +12,13 @@
 
 
 # Compilation Variables
-NAME = fdf
+NAME = fildefer
 CC = cc
-CFLAGS = -g -Wextra -Wall -Werror
-SRC = $(MANDATORY)
+CFLAGS = -Wextra -Wall -Werror
+SRC = $(FILES)
 OBJ = $(SRC:.c=.o)
 LIBFT = libft/libft.a
+MLX = 
 
 # Verbose flag
 VB	= 0
@@ -30,9 +31,10 @@ else
 endif
 
 
-MANDATORY = \
-	client.c \
-	server.c
+FILES =				\
+	src/fdf.c		\
+	src/parse_map.c	\
+	src/tools.c		\
 
 
 # Colors
@@ -47,7 +49,7 @@ WHITE		= \033[1;37m
 NC			= \033[0m # No Color
 
 
-all: $(LIBFT) $(CLI) $(SER)
+all: $(LIBFT) $(NAME)
 
 %.o: %.c
 	$(AT) $(CC) $(CFLAGS) -c $< -o $@
@@ -58,14 +60,9 @@ $(LIBFT):
 	@printf "|\n"
 	@printf "$(BLUE)LIBFT compiled.\n"
 
-$(CLI): $(OBJ) $(LIBFT)
-	$(AT) $(CC) $(CFLAGS) client.o $(LIBFT) -o $(CLI)
-	@printf "$(CYAN)client compiled.\n"
-
-$(SER): $(OBJ) $(LIBFT)
-	$(AT) $(CC) $(CFLAGS) server.o $(LIBFT) -o $(SER)
-	@printf "$(GREEN)server compiled.\n"
-
+$(NAME): $(OBJ) $(LIBFT)
+	$(AT) $(CC) $(CFLAGS) $(OBJ) -lmlx -lXext -lX11 -lm $(LIBFT) -o $(NAME)
+	@printf "$(CYAN)fildefer compiled.\n"
 
 
 clean:
@@ -77,7 +74,7 @@ clean:
 fclean: clean
 	$(AT) $(MAKE) -C libft fclean | awk {}
 	$(AT) rm -f $(CLI) $(SER)
-	@printf "$(RED)Client and Server executables deleted.\n"
+	@printf "$(RED)fildefer executable deleted.\n"
 
 re: fclean all
 

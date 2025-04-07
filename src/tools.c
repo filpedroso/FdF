@@ -14,6 +14,7 @@
 
 void	destroy_canvas(t_canvas *canvas)
 {
+	canvas++;
 	return ;
 }
 
@@ -23,12 +24,12 @@ void	null_canvas(t_canvas *canvas)
 	canvas->window = NULL;
 	canvas->image = NULL;
 	canvas->data_adr = NULL;
-	canvas->size_line = NULL;
-	canvas->endian = NULL;
-	canvas->bpp = NULL;
+	canvas->size_line = 0;
+	canvas->endian = 0;
+	canvas->bpp = 0;
 	canvas->map->map_data = NULL;
-	canvas->map->width = NULL;
-	canvas->map->height = NULL;
+	canvas->map->width = 0;
+	canvas->map->height = 0;
 }
 
 int	init_all(t_canvas *canvas)
