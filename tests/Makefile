@@ -12,12 +12,12 @@
 
 
 # Compilation Variables
-NAME = fildefer
+TEST = test
 CC = cc
-CFLAGS = # -Wextra -Wall -Werror -Wpedantic -Wconversion -Wstrict-prototypes 
+CFLAGS = -g -Wextra -Wall -Werror
 SRC = $(FILES)
 OBJ = $(SRC:.c=.o)
-LIBFT = libft/libft.a
+LIBFT = ../libft/libft.a
 
 # Verbose flag
 VB	= 0
@@ -30,10 +30,8 @@ else
 endif
 
 
-FILES =				\
-	src/fdf.c		\
-	src/parse_map.c	\
-	src/tools.c		\
+FILES = map_test.c \
+		parse_map.c \
 
 
 # Colors
@@ -48,32 +46,32 @@ WHITE		= \033[1;37m
 NC			= \033[0m # No Color
 
 
-all: $(LIBFT) $(NAME)
+all: $(LIBFT) $(TEST)
 
 %.o: %.c
 	$(AT) $(CC) $(CFLAGS) -c $< -o $@
 
 $(LIBFT):
 	@printf "$(WHITE)Compiling libft: |"
-	$(AT) $(MAKE) -C libft | awk '{printf "="; fflush()}'
+	$(AT) $(MAKE) -C ../libft | awk '{printf "="; fflush()}'
 	@printf "|\n"
 	@printf "$(BLUE)LIBFT compiled.\n"
 
-$(NAME): $(OBJ) $(LIBFT)
-	$(AT) $(CC) $(CFLAGS) $(OBJ) -lmlx -lXext -lX11 -lm $(LIBFT) -o $(NAME)
-	@printf "$(CYAN)fildefer compiled.\n"
+$(TEST): $(OBJ) $(LIBFT)
+	$(AT) $(CC) $(CFLAGS) $(OBJ) $(LIBFT) -o $(TEST)
+	@printf "$(CYAN)test compiled.\n"
 
 
 clean:
-	$(AT) $(MAKE) -C libft clean | awk {}
+	$(AT) $(MAKE) -C ../libft clean | awk {}
 	@printf "$(WHITE)LIBFT objects deleted.\n"
 	$(AT) rm -f $(OBJ)
 	@printf "$(BLACK)Object files deleted.\n"
 
 fclean: clean
-	$(AT) $(MAKE) -C libft fclean | awk {}
-	$(AT) rm -f $(NAME)
-	@printf "$(RED)fildefer executable deleted.\n"
+	$(AT) $(MAKE) -C ../libft fclean | awk {}
+	$(AT) rm -f $(TEST)
+	@printf "$(RED)test executable deleted.\n"
 
 re: fclean all
 

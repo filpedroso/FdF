@@ -20,6 +20,10 @@
 #define WIDTH 1200
 #define HEIGHT 800
 #define B_SIZE 256
+#define SCALE 200
+#define OFFSET_X (WIDTH / 2)
+#define OFFSET_Y (HEIGHT / 2)
+
 
 typedef struct s_point
 {
@@ -65,12 +69,13 @@ int		screen_coord(int idx, t_map *map, char coord);
 void	swap_points(t_point *a, t_point *b);
 
 
-int	parse_map(t_map *map, char *file_path);
-int	get_map_info(int *width, int *height, int fd);
-int	mapfill(t_map *map, int fd);
-int	get_line_length(int fd);
-int	gnl_by_ref(int fd, char **line);
-int	numlen(int num);
+t_map	*parse_map(char *file_path);
+t_map	*get_map_info(int fd);
+void	free_map(t_map *map);
+int		mapfill(t_map *map, int fd);
+int		get_line_length(int fd);
+int		gnl_by_ref(int fd, char **line);
+int		numlen(int num);
 
 
 void	null_canvas(t_canvas *canvas);

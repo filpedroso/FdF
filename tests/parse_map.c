@@ -10,63 +10,78 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fdf.h"
+#include "../src/fdf.h"
 
-t_map	*parse_map(char *file_path)
+int	parse_map(t_map *map, char *file_path)
 {
-	int		fd;
-	t_map	*map;
+	int	fd;
+	printf("This one\n");
 
 	fd = open(file_path, O_RDONLY);
+	perror("Error: ");
 	if (fd == -1)
-		return (perror("Error"), NULL);
-	map = get_map_info(fd);
-	close(fd);
-	if (map == NULL)
-		return (perror("Error"), NULL);
+	{
+		printf("Error: could not open file\n");
+		return (0);
+	}
+	if (!get_map_info(&map->width, &map->height, fd))
+	{
+		printf("Error: get map info\n");
+		close(fd);
+		return (0);
+	}
+	perror("Error: ");
+	if (close(fd) == -1)
+	{
+		printf("Error: could not close file\n");
+		return (0);
+	}
+	perror("Error: ");
+	map->map_data = (int *)malloc(map->width * map->height * sizeof(int));
+	perror("Error: ");
+	if (map->map_data == NULL)
+	{
+		printf("Error: malloc map data\n");
+		return (0);
+	}
 	fd = open(file_path, O_RDONLY);
+	perror("Error: ");
 	if (fd == -1)
-		return (free_map(map), perror("Error"), NULL);
+	{
+		printf("Error: could not open file on second time\n");
+		return (0);
+	}
 	if (!mapfill(map, fd))
 	{
+		printf("Error: map fill failed\n");
 		close(fd);
-		return (free_map(map), perror("Error"), NULL);
+		return (0);
 	}
+	perror("Error: ");
 	close(fd);
-	return (map);
+	perror("Error: ");
+	return (1);
 }
 
-void	free_map(t_map *map)
+int	get_map_info(int *width, int *height, int fd)
 {
-	if (map->map_data)
-		free(map->map_data);
-	if (map)
-		free(map);
-}
+	int	line_len;
 
-t_map	*get_map_info(int fd)
-{
-	int		line_len;
-	t_map	*map;
-
-	map = (t_map *)malloc(sizeof(t_map));
-	if (map == NULL)
+	*width = 0;
+	*width = get_line_length(fd);
+	if (*width < 1)
 		return (0);
-	map->width = get_line_length(fd);
-	if (map->width < 1)
-		return (0);
-	map->height = 1;
+	*height = 1;
 	while (1)
 	{
 		line_len = get_line_length(fd); // remember that GNL returns NULL when EOF but also if an error occurs
 		if (line_len == 0)
 			break;
-		if (line_len != map->width)
+		if (line_len != *width)
 			return (0);
-		(map->height)++;
+		(*height)++;
 	}
-	map->map_data = (int *)malloc((size_t)(map->width * map->height) * sizeof(int));
-	return (map);
+	return (1);
 }
 
 int	mapfill(t_map *map, int fd)

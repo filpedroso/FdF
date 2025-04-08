@@ -22,12 +22,9 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	null_canvas(&canvas);
-	if (!parse_map(canvas.map, argv[1]))
-	{
-		perror("Invalid map or system error");
-		destroy_canvas(&canvas);
+	canvas.map = parse_map(argv[1]);
+	if (!canvas.map)
 		return (1);
-	}
 	if (!init_all(&canvas))
 	{
 		perror("Mlx initialization failed");
@@ -157,18 +154,17 @@ void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point, int up)
 
 void	write_pixel(t_canvas *canvas, int x, int y, int z)
 {
-	int	color;
-	int	bytes_per_pixel;
+	unsigned int	color;
+	unsigned int	*pixel_adr;
 
-	bytes_per_pixel = canvas->bpp >> 3;
 	z = z >> 1;
-	color = (int)(sin(z) * 127 + 128) | (int)(sin(z + 2) * 127
-			+ 128) | (int)(sin(z + 4) * 127 + 128);
-	if (x >= 0 && y >= 0 && x < WIDTH
-		&& y < HEIGHT)
+	color = 0xFFFFFF;/* (unsigned int)(sin(z) * 127 + 128) | 
+			(unsigned int)(sin(z + 2) * 127 + 128) | 
+			(unsigned int)(sin(z + 4) * 127 + 128); */
+	if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
 	{
-		canvas->data_adr[y * canvas->size_line + x
-			* bytes_per_pixel] = color;
+		pixel_adr = (unsigned int *)(canvas->data_adr + (y * canvas->size_line + x * (canvas->bpp >> 3)));
+		*pixel_adr = color;
 	}
 }
 
@@ -182,10 +178,10 @@ int	screen_coord(int idx, t_map *map, char coord)
 	y = idx / map->width;
 	if (coord == 'x')
 	{
-		return ((x - y) * cos(30 * M_PI / 180));
+		return (int)(((x - y) * cos(30 * M_PI / 180)) * SCALE + OFFSET_X);
 	}
 	z = map->map_data[idx];
-	return ((x + y) * sin(30 * M_PI / 180) - z);
+	return (int)(((x + y) * sin(30 * M_PI / 180) - z) * SCALE + OFFSET_Y);
 }
 
 // finish program with esc, with proper destructions

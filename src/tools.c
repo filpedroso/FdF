@@ -27,9 +27,7 @@ void	null_canvas(t_canvas *canvas)
 	canvas->size_line = 0;
 	canvas->endian = 0;
 	canvas->bpp = 0;
-	canvas->map->map_data = NULL;
-	canvas->map->width = 0;
-	canvas->map->height = 0;
+	canvas->map = NULL;
 }
 
 int	init_all(t_canvas *canvas)
@@ -37,12 +35,12 @@ int	init_all(t_canvas *canvas)
 	canvas->connection = mlx_init();
 	if (canvas->connection == NULL)
 		return (0);
-	canvas->window = mlx_new_window(canvas->connection, HEIGHT, WIDTH, "FDF");
+	canvas->window = mlx_new_window(canvas->connection, WIDTH, HEIGHT, "FdF");
 	if (canvas->window == NULL)
 		return (0);
-	canvas->image = mlx_new_image(canvas->connection, HEIGHT, WIDTH);
+	canvas->image = mlx_new_image(canvas->connection, WIDTH, HEIGHT);
 	if (canvas->image == NULL)
 		return (0);
-	canvas->data_adr = mlx_get_data_addr(&canvas->image, &canvas->bpp, &canvas->size_line, &canvas->endian);
+	canvas->data_adr = mlx_get_data_addr(canvas->image, &canvas->bpp, &canvas->size_line, &canvas->endian);
 	return (1);
 }
