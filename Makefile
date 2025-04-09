@@ -6,7 +6,7 @@
 #    By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/28 18:27:51 by filpedroso        #+#    #+#              #
-#    Updated: 2025/03/28 18:37:59 by filpedroso       ###   ########.fr        #
+#    Updated: 2025/04/09 20:50:05 by filpedroso       ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,6 +14,7 @@
 # Compilation Variables
 NAME = fildefer
 CC = cc
+CFLAGS = # -Wextra -Wall -Werror -Wpedantic -Wconversion -Wstrict-prototypes 
 CFLAGS = # -Wextra -Wall -Werror -Wpedantic -Wconversion -Wstrict-prototypes 
 SRC = $(FILES)
 OBJ = $(SRC:.c=.o)
@@ -75,6 +76,14 @@ fclean: clean
 	$(AT) rm -f $(NAME)
 	@printf "$(RED)fildefer executable deleted.\n"
 
+jclean:
+	$(AT) rm -f $(OBJ)
+	@printf "$(BLACK)Object files deleted.\n"
+	$(AT) rm -f $(NAME)
+	@printf "$(RED)fildefer executable deleted.\n"
+
 re: fclean all
+
+just: jclean all
 
 .PHONY: all clean fclean re

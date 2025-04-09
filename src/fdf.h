@@ -20,7 +20,11 @@
 #define WIDTH 1200
 #define HEIGHT 800
 #define B_SIZE 256
+<<<<<<< HEAD
 #define SCALE 200
+=======
+#define SCALE 15
+>>>>>>> 412c661 (most maps display)
 #define OFFSET_X (WIDTH / 2)
 #define OFFSET_Y (HEIGHT / 2)
 
@@ -62,8 +66,8 @@ typedef struct	s_canvas
 void	fdf_hub(t_canvas *canvas);
 void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b);
 void	draw_line(t_canvas *canvas, t_point a_point, t_point b_point);
-void	draw_shallow(t_canvas *canvas, t_point a_point, t_point b_point, int up);
-void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point, int up);
+void	draw_shallow(t_canvas *canvas, t_point a_point, t_point b_point);
+void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point);
 void	write_pixel(t_canvas *canvas, int x, int y, int z);
 int		screen_coord(int idx, t_map *map, char coord);
 void	swap_points(t_point *a, t_point *b);
