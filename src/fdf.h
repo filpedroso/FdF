@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/04/07 15:49:20 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/04/10 22:08:32 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,7 @@
 #define WIDTH 1200
 #define HEIGHT 800
 #define B_SIZE 256
-<<<<<<< HEAD
-#define SCALE 200
-=======
 #define SCALE 15
->>>>>>> 412c661 (most maps display)
 #define OFFSET_X (WIDTH / 2)
 #define OFFSET_Y (HEIGHT / 2)
 
@@ -71,6 +67,11 @@ void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point);
 void	write_pixel(t_canvas *canvas, int x, int y, int z);
 int		screen_coord(int idx, t_map *map, char coord);
 void	swap_points(t_point *a, t_point *b);
+
+
+void	install_hooks(t_canvas *canvas);
+int		key_hub(int keycode, t_canvas *canvas);
+
 
 
 t_map	*parse_map(char *file_path);

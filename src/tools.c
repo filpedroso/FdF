@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:30:18 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/04/07 15:48:53 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/04/10 23:02:15 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 
 void	destroy_canvas(t_canvas *canvas)
 {
-	canvas++;
+	mlx_destroy_image(canvas->connection, canvas->image);
+	mlx_destroy_window(canvas->connection, canvas->window);
 	return ;
 }
 

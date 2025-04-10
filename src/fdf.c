@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/04/09 20:50:55 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/04/10 23:09:11 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,9 @@ int	main(int argc, char **argv)
 	t_canvas	canvas;
 
 	if (argc != 2)
-	{
-		ft_putstr_fd("Usage: ./fdf <map.fdf>\n", 2);
-		return (1);
-	}
+		return (ft_putstr_fd("Usage: ./fdf <map.fdf>\n", 2), 1);
+
 	null_canvas(&canvas);
-	canvas.map = parse_map(argv[1]);
-	if (!canvas.map)
 	canvas.map = parse_map(argv[1]);
 	if (!canvas.map)
 		return (1);
@@ -34,8 +30,29 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	fdf_hub(&canvas);
+	install_hooks(&canvas);
 	mlx_loop(canvas.connection);
 	destroy_canvas(&canvas);
+}
+
+void	install_hooks(t_canvas *canvas)
+{
+	mlx_key_hook(canvas->window, key_hub, canvas);
+}
+
+int	key_hub(int keycode, t_canvas *canvas)
+{
+	printf("Keycode pressed: %d\n", keycode);
+	if (keycode == 65307)
+	{
+		destroy_canvas(canvas);
+		exit(0);
+	}
+	return (1);
+	/* else if (keycode == )
+	{
+
+	} */
 }
 
 void	fdf_hub(t_canvas *canvas)
