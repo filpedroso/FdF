@@ -1,0 +1,7 @@
+{
+  "c-cpp-flylint.clang.executable": "42-c-format",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "42-c-format",
+  "c-cpp-flylint.runOn": "type",
+  "c-cpp-flylint.clang.config": "${workspaceFolder}/.clang-format"
+}

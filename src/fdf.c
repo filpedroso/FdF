@@ -6,11 +6,23 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/04/10 23:09:11 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/04/11 23:06:19 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
+
+static const t_keymap	g_keymap[] = {
+	// {ZOOM_IN, zoom_in},
+	// {ZOOM_OUT, zoom_out},
+	// {ROTATE_L, rotate_l},
+	// {ROTATE_R, rotate_r},
+	// {ROTATE_D, rotate_d},
+	// {ROTATE_U, rotate_u},
+	// {CAM_IN, cam_in},
+	// {CAM_OUT, cam_out},
+	{0, NULL}
+};
 
 int	main(int argc, char **argv)
 {
@@ -38,21 +50,30 @@ int	main(int argc, char **argv)
 void	install_hooks(t_canvas *canvas)
 {
 	mlx_key_hook(canvas->window, key_hub, canvas);
+	mlx_mouse_hook(canvas->window, key_hub, canvas);
 }
 
 int	key_hub(int keycode, t_canvas *canvas)
 {
+	int	i;
+
 	printf("Keycode pressed: %d\n", keycode);
-	if (keycode == 65307)
+	if (keycode == KEY_ESC)
 	{
 		destroy_canvas(canvas);
 		exit(0);
 	}
-	return (1);
-	/* else if (keycode == )
+	i = 0;
+	while (g_keymap[i].handler)
 	{
-
-	} */
+		if (g_keymap[i].keycode == keycode)
+		{
+			g_keymap[i].handler(canvas);
+			break ;
+		}
+		i++;
+	}
+	return (1);
 }
 
 void	fdf_hub(t_canvas *canvas)
@@ -198,20 +219,20 @@ void	write_pixel(t_canvas *canvas, int x, int y, int z)
 }
 
 
-int	screen_coord(int idx, t_map *map, char coord)
+int	screen_coord(int idx, t_canvas *canvas, char coord)
 {
 	int	x;
 	int	y;
 	int	z;
 
-	x = idx % map->width;
-	y = idx / map->width;
+	x = idx % canvas->map->width;
+	y = idx / canvas->map->width;
 	if (coord == 'x')
 	{
-		return (int)(((x - y) * cos(35 * M_PI / 180)) * SCALE + WIDTH / 2);
+		return (int)(((x - y) * canvas->camera.cos_angle_1) * SCALE + WIDTH / 2);
 	}
-	z = map->map_data[idx];
-	return (int)(((x + y) * sin(15 * M_PI / 180) - z) * SCALE + HEIGHT / 2);
+	z = canvas->map->map_data[idx];
+	return (int)(((x + y) * canvas->camera.sin_angle_2 - z) * SCALE + HEIGHT / 2);
 }
 
 // finish program with esc, with proper destructions
