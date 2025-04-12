@@ -6,19 +6,21 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/04/11 23:06:19 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/04/12 19:47:45 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
 
 static const t_keymap	g_keymap[] = {
-	// {ZOOM_IN, zoom_in},
-	// {ZOOM_OUT, zoom_out},
-	// {ROTATE_L, rotate_l},
-	// {ROTATE_R, rotate_r},
-	// {ROTATE_D, rotate_d},
-	// {ROTATE_U, rotate_u},
+	{ZOOM_IN, zoom_in},
+	{ZOOM_OUT, zoom_out},
+	{ROTATE_L, rotate_l},
+	{ROTATE_R, rotate_r},
+	{ROTATE_D, rotate_d},
+	{ROTATE_U, rotate_u},
+	{Z_PLUS, z_plus},
+	{Z_MINUS, z_minus},
 	// {CAM_IN, cam_in},
 	// {CAM_OUT, cam_out},
 	{0, NULL}
@@ -47,9 +49,56 @@ int	main(int argc, char **argv)
 	destroy_canvas(&canvas);
 }
 
+void	z_plus(t_canvas *canvas)
+{
+	canvas->camera.z_mod += 0.1f;
+}
+
+void	z_minus(t_canvas *canvas)
+{
+	canvas->camera.z_mod -= 0.1f;
+}
+
+void	zoom_in(t_canvas *canvas)
+{
+	canvas->camera.scale++;
+}
+
+void	zoom_out(t_canvas *canvas)
+{
+	canvas->camera.scale--;
+}
+
+void	rotate_d(t_canvas *canvas)
+{
+	canvas->camera.angle_x += 0.1f; // small radian increment
+	//canvas->camera.z_bias = sinf(canvas->camera.angle_x);
+}
+
+void	rotate_u(t_canvas *canvas)
+{
+	canvas->camera.angle_x -= 0.1f; // small radian increment
+	//canvas->camera.z_bias = sinf(canvas->camera.angle_x);
+}
+
+void	rotate_l(t_canvas *canvas)
+{
+	canvas->camera.angle_y += 0.1f; // small radian increment
+	//canvas->camera.cos_x = cosf(canvas->camera.angle_z);
+	//canvas->camera.sin_y = sinf(canvas->camera.angle_z);
+}
+
+void	rotate_r(t_canvas *canvas)
+{
+	canvas->camera.angle_y -= 0.1f; // small radian increment
+	//canvas->camera.cos_x = cosf(canvas->camera.angle_z);
+	//canvas->camera.sin_y = sinf(canvas->camera.angle_z);
+}
+
 void	install_hooks(t_canvas *canvas)
 {
-	mlx_key_hook(canvas->window, key_hub, canvas);
+	mlx_hook(canvas->window, 2, 1L<<0, key_hub, canvas);
+	//mlx_key_hook(canvas->window, key_hub, canvas);
 	mlx_mouse_hook(canvas->window, key_hub, canvas);
 }
 
@@ -69,6 +118,8 @@ int	key_hub(int keycode, t_canvas *canvas)
 		if (g_keymap[i].keycode == keycode)
 		{
 			g_keymap[i].handler(canvas);
+			ft_memset(canvas->data_adr, 0, HEIGHT * canvas->size_line);
+			fdf_hub(canvas);
 			break ;
 		}
 		i++;
@@ -106,11 +157,11 @@ void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
 	{
 		return ;
 	}
-	a_point.x = screen_coord(idx_a, canvas->map, 'x');
-	a_point.y = screen_coord(idx_a, canvas->map, 'y');
+	a_point.x = screen_coord(idx_a, canvas, 'x');
+	a_point.y = screen_coord(idx_a, canvas, 'y');
 	a_point.z = canvas->map->map_data[idx_a];
-	b_point.x = screen_coord(idx_b, canvas->map, 'x');
-	b_point.y = screen_coord(idx_b, canvas->map, 'y');
+	b_point.x = screen_coord(idx_b, canvas, 'x');
+	b_point.y = screen_coord(idx_b, canvas, 'y');
 	b_point.z = canvas->map->map_data[idx_b];
 	draw_line(canvas, a_point, b_point);
 }
@@ -221,19 +272,68 @@ void	write_pixel(t_canvas *canvas, int x, int y, int z)
 
 int	screen_coord(int idx, t_canvas *canvas, char coord)
 {
-	int	x;
-	int	y;
-	int	z;
+	float	relat_x;
+	float	relat_y;
+	float	rot_x;
+	float	rot_y;
+	float	z;
 
-	x = idx % canvas->map->width;
-	y = idx / canvas->map->width;
+	z = canvas->map->map_data[idx] * canvas->camera.z_mod;
+	relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
+	relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
+	rot_x = relat_x * cosf(canvas->camera.angle_y) - (z * sinf(canvas->camera.angle_y));
+	rot_y = relat_y * cosf(canvas->camera.angle_x) + (z * sinf(canvas->camera.angle_x));
+
 	if (coord == 'x')
-	{
-		return (int)(((x - y) * canvas->camera.cos_angle_1) * SCALE + WIDTH / 2);
-	}
-	z = canvas->map->map_data[idx];
-	return (int)(((x + y) * canvas->camera.sin_angle_2 - z) * SCALE + HEIGHT / 2);
+		return (int)(rot_x * canvas->camera.scale + WIDTH / 2);
+	return (int)(rot_y * canvas->camera.scale + HEIGHT / 2);
 }
+
+/* int	screen_coord(int idx, t_canvas *canvas, char coord)
+{
+	float	relat_x;
+	float	relat_y;
+	float	rot_x;
+	float	rot_y;
+	float	z;
+
+	relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
+	relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
+	rot_x = relat_x * canvas->camera.cos_x - relat_y * canvas->camera.sin_y;
+	rot_y = relat_x * canvas->camera.sin_y + relat_y * canvas->camera.cos_x;
+
+	if (coord == 'x')
+		return (int)(rot_x * SCALE + WIDTH / 2);
+	z = canvas->map->map_data[idx];
+	return (int)((rot_y - z * canvas->camera.z_bias) * SCALE + HEIGHT / 2);
+} */
+
+/* 
+// Detailed, better explained screen_coord:
+
+int	screen_coord(int idx, t_canvas *canvas, char coord)
+{
+	int		x = idx % canvas->map->width;
+	int		y = idx / canvas->map->width;
+	int		z = canvas->map->map_data[idx];
+	float	center_x = canvas->map->width / 2.0f;
+	float	center_y = canvas->map->height / 2.0f;
+
+	// Translate to origin (center), rotate, translate back
+	float	rel_x = x - center_x;
+	float	rel_y = y - center_y;
+
+	float	rot_x = rel_x * cosf(canvas->camera.angle_z) - rel_y * sinf(canvas->camera.angle_z);
+	float	rot_y = rel_x * sinf(canvas->camera.angle_z) + rel_y * cosf(canvas->camera.angle_z);
+
+	if (coord == 'x')
+		return (int)(rot_x * SCALE + WIDTH / 2);
+	else
+		return (int)((rot_y - z * canvas->camera.z_bias) * SCALE + HEIGHT / 2);
+} 
+
+*/
+
 
 // finish program with esc, with proper destructions
 // create hook with mask for esc (re-watch oceano's video)

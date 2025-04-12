@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/04/11 23:04:20 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/04/12 19:46:37 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,25 +25,26 @@
 # define WIDTH	1200
 # define HEIGHT	800
 # define B_SIZE	256
-# define SCALE	15
 
 
 /* ************************************************************************** */
 /*                         KEYCODE & MOUSE DEFINES                            */
 /* ************************************************************************** */
 
-# define ZOOM_IN	69      // Numpad +
-# define ZOOM_OUT	78      // Numpad -
-# define ROTATE_L	65361   // Left arrow
-# define ROTATE_R	65363   // Right arrow
-# define ROTATE_D	65364   // Down arrow
-# define ROTATE_U	65362   // Up arrow
-# define PAN_L		97      // A
-# define PAN_R		100     // D
-# define CAM_IN		119     // W
-# define CAM_OUT	115     // S
-# define KEY_ESC	65307   // ESC
-# define X_CLOSE	17      // X button (Red cross window close event)
+# define ZOOM_IN	61		// Numpad +
+# define ZOOM_OUT	45		// Numpad -
+# define ROTATE_L	65361	// Left arrow
+# define ROTATE_R	65363	// Right arrow
+# define ROTATE_D	65364	// Down arrow
+# define ROTATE_U	65362	// Up arrow
+# define Z_PLUS		122		// Z
+# define Z_MINUS	120		// X
+# define PAN_L		97		// A
+# define PAN_R		100		// D
+# define CAM_IN		119		// W
+# define CAM_OUT	115		// S
+# define KEY_ESC	65307	// ESC
+# define X_CLOSE	17		// X button (Red cross window close event)
 
 
 /* ************************************************************************** */
@@ -59,12 +60,10 @@ typedef struct s_map
 
 typedef struct s_camera
 {
-	int		angle_1;
-	int		angle_2;
-	float	sin_angle_1;
-	float	sin_angle_2;
-	float	cos_angle_1;
-	float	cos_angle_2;
+	int		scale;
+	float	angle_x;
+	float	angle_y;
+	float	z_mod;
 }				t_camera;
 
 
@@ -116,11 +115,19 @@ void	draw_line(t_canvas *canvas, t_point a_point, t_point b_point);
 void	draw_shallow(t_canvas *canvas, t_point a_point, t_point b_point);
 void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point);
 void	write_pixel(t_canvas *canvas, int x, int y, int z);
-int		screen_coord(int idx, t_map *map, char coord);
+int		screen_coord(int idx, t_canvas *canvas, char coord);
 void	swap_points(t_point *a, t_point *b);
 
 void	install_hooks(t_canvas *canvas);
 int		key_hub(int keycode, t_canvas *canvas);
+void	rotate_l(t_canvas *canvas);
+void	rotate_r(t_canvas *canvas);
+void	rotate_d(t_canvas *canvas);
+void	rotate_u(t_canvas *canvas);
+void	zoom_in(t_canvas *canvas);
+void	zoom_out(t_canvas *canvas);
+void	z_plus(t_canvas *canvas);
+void	z_minus(t_canvas *canvas);
 
 t_map	*parse_map(char *file_path);
 t_map	*get_map_info(int fd);
