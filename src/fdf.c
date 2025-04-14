@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/04/12 19:47:45 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/04/14 15:45:30 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,8 +269,50 @@ void	write_pixel(t_canvas *canvas, int x, int y, int z)
 	}
 }
 
+/* int screen_coord(int idx, t_canvas *canvas, char coord)
+{
+    float relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
+    float relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
+    float z = canvas->map->map_data[idx] * canvas->camera.z_mod;
 
-int	screen_coord(int idx, t_canvas *canvas, char coord)
+    // Step 1: Apply Y-axis rotation to X and Z
+    float angle_y = canvas->camera.angle_y;
+    float x_rot_y = relat_x * cosf(angle_y) - z * sinf(angle_y);
+    float z_rot_y = relat_x * sinf(angle_y) + z * cosf(angle_y);
+
+    // Step 2: Apply X-axis rotation to Y and Z_rot_y
+    float angle_x = canvas->camera.angle_x;
+    float y_rot_x = relat_y * cosf(angle_x) + z_rot_y * sinf(angle_x);
+
+    // Final projection to screen
+    if (coord == 'x')
+        return (int)(x_rot_y * canvas->camera.scale + WIDTH / 2);
+    else
+        return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
+} */
+
+int screen_coord(int idx, t_canvas *canvas, char coord)
+{
+	float	z;
+	float	relat_x;
+	float	x_rot_y;
+	float	z_rot_y;
+	float	y_rot_x;
+
+    z = canvas->map->map_data[idx] * canvas->camera.z_mod;
+    relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
+    if (coord == 'x')
+	{
+        return ((int)((relat_x * cosf(canvas->camera.angle_y) - z * sinf(canvas->camera.angle_y)) 
+				* canvas->camera.scale + WIDTH / 2));
+	}
+    z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z * cosf(canvas->camera.angle_y);
+    y_rot_x = ((idx / canvas->map->width) - (canvas->map->height >> 1)) * 
+				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x); // Step 2: Apply X-axis rotation to Y and Z_rot_y
+	return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
+}
+
+/* int	screen_coord(int idx, t_canvas *canvas, char coord)
 {
 	float	relat_x;
 	float	relat_y;
@@ -287,7 +329,7 @@ int	screen_coord(int idx, t_canvas *canvas, char coord)
 	if (coord == 'x')
 		return (int)(rot_x * canvas->camera.scale + WIDTH / 2);
 	return (int)(rot_y * canvas->camera.scale + HEIGHT / 2);
-}
+} */
 
 /* int	screen_coord(int idx, t_canvas *canvas, char coord)
 {
