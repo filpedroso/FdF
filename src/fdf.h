@@ -6,7 +6,11 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2025/04/14 14:37:21 by filpedroso       ###   ########.fr       */
+=======
+/*   Updated: 2025/05/07 23:43:14 by filpedroso       ###   ########.fr       */
+>>>>>>> 91b915f (new ideas, color)
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +26,10 @@
 /*                              SIZES DEFINES                                 */
 /* ************************************************************************** */
 
-# define WIDTH	1200
-# define HEIGHT	800
+# define WIDTH	1000
+# define HEIGHT	700
 # define B_SIZE	256
+# define COLOR_COUNT 256
 
 
 /* ************************************************************************** */
@@ -51,12 +56,29 @@
 /*                           STRUCTS  &  TYPEDEFS                             */
 /* ************************************************************************** */
 
-typedef struct s_map
+typedef struct	s_color_stop
+{
+    float	position;
+    int		r;
+    int		g;
+    int		b;
+}	t_color_stop;
+
+typedef struct	s_map
 {
 	int	*map_data;
 	int	height;
 	int	width;
-}			t_map;
+	int	z_min;
+	int	z_max;
+}				t_map;
+
+typedef struct	s_color
+{
+    int r;
+    int g;
+    int b;
+} 				t_color;
 
 typedef struct s_camera
 {
@@ -78,33 +100,31 @@ typedef struct	s_canvas
 	int			bpp;
 	t_map		*map;
 	t_camera	camera;
+	int			color_map[COLOR_COUNT];
 }				t_canvas;
 
+<<<<<<< HEAD
 
 typedef void (*trigger_func)(t_canvas *);
 
 
 typedef struct s_keymap
+=======
+typedef struct	s_point
+>>>>>>> 91b915f (new ideas, color)
 {
-	int				keycode;
-	trigger_func	handler;
-}				t_keymap;
-
-typedef struct s_point
-{
-	int x;
-	int y;
+	int	x;
+	int	y;
 	int z;
-} 			t_point;
+	int	z_step;
+}				t_point;
 
-typedef struct s_buffer
+typedef struct	s_buffer
 {
 	int				buf[BUFFER_SIZE];
 	int				count;
 	struct s_buffer	*next;
-}			t_buffer;
-
-
+}				t_buffer;
 
 
 /* ************************************************************************** */
@@ -119,6 +139,7 @@ void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point);
 void	write_pixel(t_canvas *canvas, int x, int y, int z);
 int		screen_coord(int idx, t_canvas *canvas, char coord);
 void	swap_points(t_point *a, t_point *b);
+t_color hsl_to_rgb(float h, float s, float l);
 
 void	install_hooks(t_canvas *canvas);
 int		key_hub(int keycode, t_canvas *canvas);
@@ -138,10 +159,12 @@ int		mapfill(t_map *map, int fd);
 int		get_line_length(int fd);
 int		gnl_by_ref(int fd, char **line);
 int		numlen(int num);
+void	get_z_reach(t_map *map);
 
 void	null_canvas(t_canvas *canvas);
 int		init_all(t_canvas *canvas);
 void	destroy_canvas(t_canvas *canvas);
+void	init_color_map(t_canvas *canvas, t_color color);
 
 
 

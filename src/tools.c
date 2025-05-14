@@ -6,11 +6,23 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:30:18 by fpedroso          #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2025/04/14 15:06:57 by filpedroso       ###   ########.fr       */
+=======
+/*   Updated: 2025/05/07 22:51:36 by filpedroso       ###   ########.fr       */
+>>>>>>> 91b915f (new ideas, color)
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
+
+const t_color_stop	g_stops[] = {
+		{0.00f,  0,   0, 128},  // deep blue
+        {0.25f,  0, 128, 255},  // light blue
+        {0.50f,  0, 200,   0},  // green
+        {0.75f, 160,  82,  45}, // brown
+        {1.00f, 255, 255, 255}  // white
+};
 
 void	destroy_canvas(t_canvas *canvas)
 {
@@ -33,6 +45,8 @@ void	null_canvas(t_canvas *canvas)
 
 int	init_all(t_canvas *canvas)
 {
+	t_color			color;
+
 	canvas->connection = mlx_init();
 	if (canvas->connection == NULL)
 		return (0);
@@ -47,5 +61,36 @@ int	init_all(t_canvas *canvas)
 	canvas->camera.angle_y = M_PI / 9;
 	canvas->camera.scale = 15;
 	canvas->camera.z_mod = 1.0f;
+<<<<<<< HEAD
+=======
+	init_color_map(canvas, color);
+>>>>>>> 91b915f (new ideas, color)
 	return (1);
+}
+
+void init_color_map(t_canvas *canvas, t_color color)
+{
+	int				num_stops;
+	float			t;
+	float			local_t;
+	int				i;
+	int				j;
+
+    num_stops = sizeof(g_stops) / sizeof(g_stops[0]);
+	i = -1;
+	while(++i < COLOR_COUNT)
+	{
+        t = i / (float)(COLOR_COUNT - 1);
+		j = -1;
+		while(++j < num_stops - 1)
+		{
+            if (t < g_stops[j + 1].position)
+                break;
+		}
+        local_t = (t - g_stops[j].position) / (g_stops[j + 1].position - g_stops[j].position);
+        color.r = (int)((1 - local_t) * g_stops[j].r + local_t * g_stops[j + 1].r);
+        color.g = (int)((1 - local_t) * g_stops[j].g + local_t * g_stops[j + 1].g);
+		color.b = (int)((1 - local_t) * g_stops[j].b + local_t * g_stops[j + 1].b);
+		canvas->color_map[i] = (color.b << 16) | (color.g << 8) | color.b;
+	}
 }

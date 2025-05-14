@@ -6,25 +6,15 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2025/04/14 15:45:30 by filpedroso       ###   ########.fr       */
+=======
+/*   Updated: 2025/05/07 23:47:28 by filpedroso       ###   ########.fr       */
+>>>>>>> 91b915f (new ideas, color)
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
-
-static const t_keymap	g_keymap[] = {
-	{ZOOM_IN, zoom_in},
-	{ZOOM_OUT, zoom_out},
-	{ROTATE_L, rotate_l},
-	{ROTATE_R, rotate_r},
-	{ROTATE_D, rotate_d},
-	{ROTATE_U, rotate_u},
-	{Z_PLUS, z_plus},
-	{Z_MINUS, z_minus},
-	// {CAM_IN, cam_in},
-	// {CAM_OUT, cam_out},
-	{0, NULL}
-};
 
 int	main(int argc, char **argv)
 {
@@ -49,52 +39,6 @@ int	main(int argc, char **argv)
 	destroy_canvas(&canvas);
 }
 
-void	z_plus(t_canvas *canvas)
-{
-	canvas->camera.z_mod += 0.1f;
-}
-
-void	z_minus(t_canvas *canvas)
-{
-	canvas->camera.z_mod -= 0.1f;
-}
-
-void	zoom_in(t_canvas *canvas)
-{
-	canvas->camera.scale++;
-}
-
-void	zoom_out(t_canvas *canvas)
-{
-	canvas->camera.scale--;
-}
-
-void	rotate_d(t_canvas *canvas)
-{
-	canvas->camera.angle_x += 0.1f; // small radian increment
-	//canvas->camera.z_bias = sinf(canvas->camera.angle_x);
-}
-
-void	rotate_u(t_canvas *canvas)
-{
-	canvas->camera.angle_x -= 0.1f; // small radian increment
-	//canvas->camera.z_bias = sinf(canvas->camera.angle_x);
-}
-
-void	rotate_l(t_canvas *canvas)
-{
-	canvas->camera.angle_y += 0.1f; // small radian increment
-	//canvas->camera.cos_x = cosf(canvas->camera.angle_z);
-	//canvas->camera.sin_y = sinf(canvas->camera.angle_z);
-}
-
-void	rotate_r(t_canvas *canvas)
-{
-	canvas->camera.angle_y -= 0.1f; // small radian increment
-	//canvas->camera.cos_x = cosf(canvas->camera.angle_z);
-	//canvas->camera.sin_y = sinf(canvas->camera.angle_z);
-}
-
 void	install_hooks(t_canvas *canvas)
 {
 	mlx_hook(canvas->window, 2, 1L<<0, key_hub, canvas);
@@ -104,26 +48,30 @@ void	install_hooks(t_canvas *canvas)
 
 int	key_hub(int keycode, t_canvas *canvas)
 {
-	int	i;
-
-	printf("Keycode pressed: %d\n", keycode);
+	/* printf("Keycode pressed: %d\n", keycode); */
 	if (keycode == KEY_ESC)
 	{
 		destroy_canvas(canvas);
 		exit(0);
 	}
-	i = 0;
-	while (g_keymap[i].handler)
-	{
-		if (g_keymap[i].keycode == keycode)
-		{
-			g_keymap[i].handler(canvas);
-			ft_memset(canvas->data_adr, 0, HEIGHT * canvas->size_line);
-			fdf_hub(canvas);
-			break ;
-		}
-		i++;
-	}
+	if (keycode == ROTATE_L)
+		canvas->camera.angle_y += 0.1f;
+	else if (keycode == ROTATE_R)
+		canvas->camera.angle_y -= 0.1f;
+	else if (keycode == ROTATE_D)
+		canvas->camera.angle_x += 0.1f;
+	else if (keycode == ROTATE_U)
+		canvas->camera.angle_x -= 0.1f;
+	else if (keycode == ZOOM_IN)
+		canvas->camera.scale++;
+	else if (keycode == ZOOM_OUT)
+		canvas->camera.scale--;
+	else if (keycode == Z_MINUS)
+		canvas->camera.z_mod -= 0.1f;
+	else if (keycode == Z_PLUS)
+		canvas->camera.z_mod += 0.1f;
+	ft_memset(canvas->data_adr, 0, HEIGHT * canvas->size_line);
+	fdf_hub(canvas);
 	return (1);
 }
 
@@ -133,6 +81,8 @@ void	fdf_hub(t_canvas *canvas)
 	int	width;
 	int	height;
 
+	/* printf("min: %i\n", canvas->map->z_min);
+	printf("max: %i\n", canvas->map->z_max); */
 	idx = 0;
 	width = canvas->map->width;
 	height = canvas->map->height;
@@ -208,10 +158,12 @@ void	draw_shallow(t_canvas *canvas, t_point a_point, t_point b_point)
 		incr = -1;
 		delta_y = -delta_y;
 	}
+	a_point.z_step = (b_point.z - a_point.z) / abs(delta_x);
 	error = (delta_y << 1) - delta_x;
 	while (a_point.x <= b_point.x)
 	{
 		write_pixel(canvas, a_point.x, a_point.y, a_point.z);
+		a_point.z += a_point.z_step;
 		a_point.x++;
 		if (error >= 0)
 		{
@@ -237,10 +189,12 @@ void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point)
 		incr = -1;
 		delta_x = -delta_x;
 	}
+	a_point.z_step = (b_point.z - a_point.z) / abs(delta_y);
 	error = (delta_x << 1) - delta_y;
 	while (a_point.y <= b_point.y)
 	{
 		write_pixel(canvas, a_point.x, a_point.y, a_point.z);
+		a_point.z += a_point.z_step;
 		a_point.y++;
 		if (error >= 0)
 		{
@@ -251,23 +205,104 @@ void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point)
 	}
 }
 
+
+int screen_coord(int idx, t_canvas *canvas, char coord)
+{
+	float	z;
+	float	relat_x;
+	float	x_rot_y;
+	float	z_rot_y;
+	float	y_rot_x;
+
+    z = canvas->map->map_data[idx] * canvas->camera.z_mod;
+    relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
+    if (coord == 'x')
+	{
+        return ((int)((relat_x * cosf(canvas->camera.angle_y) - z * sinf(canvas->camera.angle_y)) 
+				* canvas->camera.scale + WIDTH / 2));
+	}
+    z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z * cosf(canvas->camera.angle_y);
+    y_rot_x = ((idx / canvas->map->width) - (canvas->map->height / 2.0f)) * 
+				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x); // Step 2: Apply X-axis rotation to Y and Z_rot_y
+	return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
+}
+
 void	write_pixel(t_canvas *canvas, int x, int y, int z)
 {
-	unsigned int	r;
-	unsigned int	g;
-	unsigned int	b;
 	unsigned int	*pixel_adr;
+	int				index;
 
-	z = z >> 1;
-	r = (unsigned int)(sin(z) * 127 + 128);
-	g = (unsigned int)(sin(z + 2) * 127 + 128);
-	b = (unsigned int)(sin(z + 4) * 127 + 128);
+	/* printf("Z: %i\n", z); */
+	if (canvas->map->z_min == canvas->map->z_max)
+		index = 0;
+	else
+	{
+		index = (z - canvas->map->z_min) / (canvas->map->z_max - canvas->map->z_min);
+		index = (int)(index * (COLOR_COUNT - 1));
+		if (index < 0)
+			index = 0;
+		if (index >= COLOR_COUNT)
+			index = COLOR_COUNT - 1;
+	}
 	if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
 	{
 		pixel_adr = (unsigned int *)(canvas->data_adr + (y * canvas->size_line + x * (canvas->bpp >> 3)));
-		*pixel_adr = (r << 16) | (g << 8) | (b << 3);
+		*pixel_adr = canvas->color_map[index];
 	}
 }
+
+<<<<<<< HEAD
+/* int screen_coord(int idx, t_canvas *canvas, char coord)
+{
+    float relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
+    float relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
+    float z = canvas->map->map_data[idx] * canvas->camera.z_mod;
+
+=======
+/* void write_pixel(t_canvas *canvas, int x, int y, int z) {
+    // Normalize Z locally (e.g., scale to [0, 1] for gradient)
+    float t = (z - canvas->map->z_min) / (canvas->map->z_max - canvas->map->z_min);
+	t = fmaxf(0.0f, fminf(t, 1.0f));
+   
+
+    // Base color (e.g., rotating hue)
+    float hue = fmodf(canvas->camera.angle_y * 10.0f, 360.0f);
+    t_color base_color = hsl_to_rgb(hue, 0.7f, 0.5f);  // Vibrant base
+    t_color peak_color = {255, 255, 255};              // White
+
+    // Blend
+    unsigned int r = (unsigned int)(base_color.r * (1 - t) + peak_color.r * t);
+    unsigned int g = (unsigned int)(base_color.g * (1 - t) + peak_color.g * t);
+    unsigned int b = (unsigned int)(base_color.b * (1 - t) + peak_color.b * t);
+
+    // Draw pixel (with bounds check)
+    if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
+        unsigned int *pixel = (unsigned int *)(canvas->data_adr + y * canvas->size_line + x * (canvas->bpp >> 3));
+        *pixel = (r << 16) | (g << 8) | b;
+    }
+}
+
+t_color hsl_to_rgb(float h, float s, float l) {
+    float c = (1 - fabsf(2 * l - 1)) * s;
+    float x = c * (1 - fabsf(fmodf(h / 60.0f, 2) - 1));
+    float m = l - c / 2;
+    t_color rgb;
+
+    if (h < 60)      { rgb.r = c; rgb.g = x; rgb.b = 0; }
+    else if (h < 120) { rgb.r = x; rgb.g = c; rgb.b = 0; }
+    else if (h < 180) { rgb.r = 0; rgb.g = c; rgb.b = x; }
+    else if (h < 240) { rgb.r = 0; rgb.g = x; rgb.b = c; }
+    else if (h < 300) { rgb.r = x; rgb.g = 0; rgb.b = c; }
+    else              { rgb.r = c; rgb.g = 0; rgb.b = x; }
+
+    rgb.r = (rgb.r + m) * 255;
+    rgb.g = (rgb.g + m) * 255;
+    rgb.b = (rgb.b + m) * 255;
+    return rgb;
+} */
+
+
+
 
 /* int screen_coord(int idx, t_canvas *canvas, char coord)
 {
@@ -275,6 +310,7 @@ void	write_pixel(t_canvas *canvas, int x, int y, int z)
     float relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
     float z = canvas->map->map_data[idx] * canvas->camera.z_mod;
 
+>>>>>>> 91b915f (new ideas, color)
     // Step 1: Apply Y-axis rotation to X and Z
     float angle_y = canvas->camera.angle_y;
     float x_rot_y = relat_x * cosf(angle_y) - z * sinf(angle_y);
@@ -291,6 +327,7 @@ void	write_pixel(t_canvas *canvas, int x, int y, int z)
         return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
 } */
 
+<<<<<<< HEAD
 int screen_coord(int idx, t_canvas *canvas, char coord)
 {
 	float	z;
@@ -311,6 +348,8 @@ int screen_coord(int idx, t_canvas *canvas, char coord)
 				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x); // Step 2: Apply X-axis rotation to Y and Z_rot_y
 	return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
 }
+=======
+>>>>>>> 91b915f (new ideas, color)
 
 /* int	screen_coord(int idx, t_canvas *canvas, char coord)
 {
