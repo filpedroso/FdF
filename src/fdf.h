@@ -6,11 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2025/04/14 14:37:21 by filpedroso       ###   ########.fr       */
-=======
-/*   Updated: 2025/05/07 23:43:14 by filpedroso       ###   ########.fr       */
->>>>>>> 91b915f (new ideas, color)
+/*   Updated: 2025/05/16 16:52:54 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,15 +99,7 @@ typedef struct	s_canvas
 	int			color_map[COLOR_COUNT];
 }				t_canvas;
 
-<<<<<<< HEAD
-
-typedef void (*trigger_func)(t_canvas *);
-
-
-typedef struct s_keymap
-=======
 typedef struct	s_point
->>>>>>> 91b915f (new ideas, color)
 {
 	int	x;
 	int	y;

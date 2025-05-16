@@ -6,11 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2025/04/14 15:45:30 by filpedroso       ###   ########.fr       */
-=======
-/*   Updated: 2025/05/07 23:47:28 by filpedroso       ###   ########.fr       */
->>>>>>> 91b915f (new ideas, color)
+/*   Updated: 2025/05/16 16:52:48 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -251,14 +247,6 @@ void	write_pixel(t_canvas *canvas, int x, int y, int z)
 	}
 }
 
-<<<<<<< HEAD
-/* int screen_coord(int idx, t_canvas *canvas, char coord)
-{
-    float relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
-    float relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
-    float z = canvas->map->map_data[idx] * canvas->camera.z_mod;
-
-=======
 /* void write_pixel(t_canvas *canvas, int x, int y, int z) {
     // Normalize Z locally (e.g., scale to [0, 1] for gradient)
     float t = (z - canvas->map->z_min) / (canvas->map->z_max - canvas->map->z_min);
@@ -310,7 +298,6 @@ t_color hsl_to_rgb(float h, float s, float l) {
     float relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
     float z = canvas->map->map_data[idx] * canvas->camera.z_mod;
 
->>>>>>> 91b915f (new ideas, color)
     // Step 1: Apply Y-axis rotation to X and Z
     float angle_y = canvas->camera.angle_y;
     float x_rot_y = relat_x * cosf(angle_y) - z * sinf(angle_y);
@@ -327,29 +314,6 @@ t_color hsl_to_rgb(float h, float s, float l) {
         return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
 } */
 
-<<<<<<< HEAD
-int screen_coord(int idx, t_canvas *canvas, char coord)
-{
-	float	z;
-	float	relat_x;
-	float	x_rot_y;
-	float	z_rot_y;
-	float	y_rot_x;
-
-    z = canvas->map->map_data[idx] * canvas->camera.z_mod;
-    relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
-    if (coord == 'x')
-	{
-        return ((int)((relat_x * cosf(canvas->camera.angle_y) - z * sinf(canvas->camera.angle_y)) 
-				* canvas->camera.scale + WIDTH / 2));
-	}
-    z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z * cosf(canvas->camera.angle_y);
-    y_rot_x = ((idx / canvas->map->width) - (canvas->map->height >> 1)) * 
-				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x); // Step 2: Apply X-axis rotation to Y and Z_rot_y
-	return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
-}
-=======
->>>>>>> 91b915f (new ideas, color)
 
 /* int	screen_coord(int idx, t_canvas *canvas, char coord)
 {

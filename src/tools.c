@@ -6,13 +6,10 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:30:18 by fpedroso          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2025/04/14 15:06:57 by filpedroso       ###   ########.fr       */
-=======
-/*   Updated: 2025/05/07 22:51:36 by filpedroso       ###   ########.fr       */
->>>>>>> 91b915f (new ideas, color)
+/*   Updated: 2025/05/16 16:53:19 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "fdf.h"
 
@@ -61,10 +58,7 @@ int	init_all(t_canvas *canvas)
 	canvas->camera.angle_y = M_PI / 9;
 	canvas->camera.scale = 15;
 	canvas->camera.z_mod = 1.0f;
-<<<<<<< HEAD
-=======
 	init_color_map(canvas, color);
->>>>>>> 91b915f (new ideas, color)
 	return (1);
 }
 
