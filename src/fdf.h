@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/16 16:52:54 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/17 18:29:52 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include "../libft/libft.h"
 #include <math.h>
-#include <mlx.h>
+#include "../resources/minilibx/mlx.h"
 
 
 /* ************************************************************************** */
