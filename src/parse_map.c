@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:27:24 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/04/14 22:37:51 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/18 12:54:07 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,25 +32,8 @@ t_map	*parse_map(char *file_path)
 		close(fd);
 		return (free_map(map), perror("Error"), NULL);
 	}
-	get_z_reach(map);
 	close(fd);
 	return (map);
-}
-
-void get_z_reach(t_map *map)
-{
-    if (!map || !map->map_data) return;  // Safety check
-
-    map->z_max = INT_MIN;
-    map->z_min = INT_MAX;
-
-    for (int i = 0; i < map->width * map->height; i++) {
-        if (map->map_data[i] > map->z_max) map->z_max = map->map_data[i];
-        if (map->map_data[i] < map->z_min) map->z_min = map->map_data[i];
-    }
-
-    // Handle flat maps (all Z values equal)
-    if (map->z_max == map->z_min) map->z_max = map->z_min + 1;
 }
 
 void	free_map(t_map *map)

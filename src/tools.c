@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:30:18 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/18 11:18:36 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/18 13:11:12 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ int	init_all(t_canvas *canvas)
 	canvas->data_adr = mlx_get_data_addr(canvas->image, &canvas->bpp, &canvas->size_line, &canvas->endian);
 	canvas->camera.angle_x = M_PI / 11;
 	canvas->camera.angle_y = M_PI / 9;
-	canvas->camera.scale = 25;
+	canvas->camera.scale = 25 * 200 / (canvas->map->width * canvas->map->height);
 	canvas->camera.z_mod = 0.6f;
 	init_color_map(canvas, color);
 	return (1);
