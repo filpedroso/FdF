@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/16 16:52:48 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/18 12:17:37 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ int	main(int argc, char **argv)
 
 	if (argc != 2)
 		return (ft_putstr_fd("Usage: ./fdf <map.fdf>\n", 2), 1);
-
 	null_canvas(&canvas);
 	canvas.map = parse_map(argv[1]);
 	if (!canvas.map)
@@ -29,22 +28,29 @@ int	main(int argc, char **argv)
 		destroy_canvas(&canvas);
 		return (1);
 	}
-	fdf_hub(&canvas);
 	install_hooks(&canvas);
+	fdf_hub(&canvas);
 	mlx_loop(canvas.connection);
 	destroy_canvas(&canvas);
 }
 
 void	install_hooks(t_canvas *canvas)
 {
-	mlx_hook(canvas->window, 2, 1L<<0, key_hub, canvas);
-	//mlx_key_hook(canvas->window, key_hub, canvas);
-	mlx_mouse_hook(canvas->window, key_hub, canvas);
+	mlx_hook(canvas->window, 2, 0, key_hub, canvas);
+	mlx_hook(canvas->window, 17, 0, close_window, canvas);
+	// mlx_key_hook(canvas->window, key_hub, canvas);
+	// mlx_mouse_hook(canvas->window, key_hub, canvas);
+}
+
+int	close_window(t_canvas *canvas)
+{
+	destroy_canvas(canvas);
+	exit(0);
 }
 
 int	key_hub(int keycode, t_canvas *canvas)
 {
-	/* printf("Keycode pressed: %d\n", keycode); */
+	printf("Keycode pressed: %i\n", keycode);
 	if (keycode == KEY_ESC)
 	{
 		destroy_canvas(canvas);
@@ -77,8 +83,8 @@ void	fdf_hub(t_canvas *canvas)
 	int	width;
 	int	height;
 
-	/* printf("min: %i\n", canvas->map->z_min);
-	printf("max: %i\n", canvas->map->z_max); */
+	// printf("min: %i\n", canvas->map->z_min);
+	// printf("max: %i\n", canvas->map->z_max);
 	idx = 0;
 	width = canvas->map->width;
 	height = canvas->map->height;
@@ -110,6 +116,25 @@ void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
 	b_point.y = screen_coord(idx_b, canvas, 'y');
 	b_point.z = canvas->map->map_data[idx_b];
 	draw_line(canvas, a_point, b_point);
+}
+
+int	screen_coord(int idx, t_canvas *canvas, char coord)
+{
+	float	relat_x;
+	float	relat_y;
+	float	rot_x;
+	float	rot_y;
+	float	z;
+
+	relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
+	relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
+	rot_x = relat_x * cosf(canvas->camera.angle_x) - relat_y * sinf(canvas->camera.angle_y);
+	rot_y = relat_x * sinf(canvas->camera.angle_y) + relat_y * cosf(canvas->camera.angle_x);
+
+	if (coord == 'x')
+		return (int)(rot_x * canvas->camera.scale + WIDTH / 2);
+	z = (float)canvas->map->map_data[idx];
+	return (int)((rot_y - z * canvas->camera.z_mod) * canvas->camera.scale + HEIGHT / 2);
 }
 
 void	draw_line(t_canvas *canvas, t_point a_point, t_point b_point)
@@ -202,7 +227,7 @@ void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point)
 }
 
 
-int screen_coord(int idx, t_canvas *canvas, char coord)
+/* int screen_coord(int idx, t_canvas *canvas, char coord)
 {
 	float	z;
 	float	relat_x;
@@ -221,7 +246,7 @@ int screen_coord(int idx, t_canvas *canvas, char coord)
     y_rot_x = ((idx / canvas->map->width) - (canvas->map->height / 2.0f)) * 
 				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x); // Step 2: Apply X-axis rotation to Y and Z_rot_y
 	return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
-}
+} */
 
 void	write_pixel(t_canvas *canvas, int x, int y, int z)
 {
@@ -334,24 +359,6 @@ t_color hsl_to_rgb(float h, float s, float l) {
 	return (int)(rot_y * canvas->camera.scale + HEIGHT / 2);
 } */
 
-/* int	screen_coord(int idx, t_canvas *canvas, char coord)
-{
-	float	relat_x;
-	float	relat_y;
-	float	rot_x;
-	float	rot_y;
-	float	z;
-
-	relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
-	relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
-	rot_x = relat_x * canvas->camera.cos_x - relat_y * canvas->camera.sin_y;
-	rot_y = relat_x * canvas->camera.sin_y + relat_y * canvas->camera.cos_x;
-
-	if (coord == 'x')
-		return (int)(rot_x * SCALE + WIDTH / 2);
-	z = canvas->map->map_data[idx];
-	return (int)((rot_y - z * canvas->camera.z_bias) * SCALE + HEIGHT / 2);
-} */
 
 /* 
 // Detailed, better explained screen_coord:
