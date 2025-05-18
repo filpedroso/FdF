@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/17 18:29:52 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/18 12:19:40 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,19 +32,19 @@
 /*                         KEYCODE & MOUSE DEFINES                            */
 /* ************************************************************************** */
 
-# define ZOOM_IN	61		// Numpad +
-# define ZOOM_OUT	45		// Numpad -
-# define ROTATE_L	65361	// Left arrow
-# define ROTATE_R	65363	// Right arrow
-# define ROTATE_D	65364	// Down arrow
-# define ROTATE_U	65362	// Up arrow
+# define ZOOM_IN	24		// Numpad +
+# define ZOOM_OUT	27		// Numpad -
+# define ROTATE_L	123	// Left arrow
+# define ROTATE_R	124	// Right arrow
+# define ROTATE_D	125	// Down arrow
+# define ROTATE_U	126	// Up arrow
 # define Z_PLUS		122		// Z
 # define Z_MINUS	120		// X
 # define PAN_L		97		// A
 # define PAN_R		100		// D
 # define CAM_IN		119		// W
 # define CAM_OUT	115		// S
-# define KEY_ESC	65307	// ESC
+# define KEY_ESC	53	// ESC
 # define X_CLOSE	17		// X button (Red cross window close event)
 
 
@@ -153,6 +153,7 @@ void	null_canvas(t_canvas *canvas);
 int		init_all(t_canvas *canvas);
 void	destroy_canvas(t_canvas *canvas);
 void	init_color_map(t_canvas *canvas, t_color color);
+int		close_window(t_canvas *canvas);
 
 
 
