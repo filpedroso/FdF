@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/18 12:17:37 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/18 13:11:50 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,7 @@ void	install_hooks(t_canvas *canvas)
 {
 	mlx_hook(canvas->window, 2, 0, key_hub, canvas);
 	mlx_hook(canvas->window, 17, 0, close_window, canvas);
-	// mlx_key_hook(canvas->window, key_hub, canvas);
-	// mlx_mouse_hook(canvas->window, key_hub, canvas);
+	mlx_hook(canvas->window, 53, 0, close_window, canvas);
 }
 
 int	close_window(t_canvas *canvas)
@@ -50,12 +49,6 @@ int	close_window(t_canvas *canvas)
 
 int	key_hub(int keycode, t_canvas *canvas)
 {
-	printf("Keycode pressed: %i\n", keycode);
-	if (keycode == KEY_ESC)
-	{
-		destroy_canvas(canvas);
-		exit(0);
-	}
 	if (keycode == ROTATE_L)
 		canvas->camera.angle_y += 0.1f;
 	else if (keycode == ROTATE_R)
@@ -117,25 +110,27 @@ void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
 	b_point.z = canvas->map->map_data[idx_b];
 	draw_line(canvas, a_point, b_point);
 }
-
-int	screen_coord(int idx, t_canvas *canvas, char coord)
+int screen_coord(int idx, t_canvas *canvas, char coord)
 {
-	float	relat_x;
-	float	relat_y;
-	float	rot_x;
-	float	rot_y;
 	float	z;
+	float	relat_x;
+	float	x_rot_y;
+	float	z_rot_y;
+	float	y_rot_x;
 
-	relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
-	relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
-	rot_x = relat_x * cosf(canvas->camera.angle_x) - relat_y * sinf(canvas->camera.angle_y);
-	rot_y = relat_x * sinf(canvas->camera.angle_y) + relat_y * cosf(canvas->camera.angle_x);
-
-	if (coord == 'x')
-		return (int)(rot_x * canvas->camera.scale + WIDTH / 2);
-	z = (float)canvas->map->map_data[idx];
-	return (int)((rot_y - z * canvas->camera.z_mod) * canvas->camera.scale + HEIGHT / 2);
+    z = canvas->map->map_data[idx] * canvas->camera.z_mod;
+    relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
+    if (coord == 'x')
+	{
+        return ((int)((relat_x * cosf(canvas->camera.angle_y) - z * sinf(canvas->camera.angle_y)) 
+				* canvas->camera.scale + WIDTH / 2));
+	}
+    z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z * cosf(canvas->camera.angle_y);
+    y_rot_x = ((idx / canvas->map->width) - (canvas->map->height / 2.0f)) * 
+				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x); // Step 2: Apply X-axis rotation to Y and Z_rot_y
+	return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
 }
+
 
 void	draw_line(t_canvas *canvas, t_point a_point, t_point b_point)
 {
@@ -227,164 +222,19 @@ void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point)
 }
 
 
-/* int screen_coord(int idx, t_canvas *canvas, char coord)
-{
-	float	z;
-	float	relat_x;
-	float	x_rot_y;
-	float	z_rot_y;
-	float	y_rot_x;
-
-    z = canvas->map->map_data[idx] * canvas->camera.z_mod;
-    relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
-    if (coord == 'x')
-	{
-        return ((int)((relat_x * cosf(canvas->camera.angle_y) - z * sinf(canvas->camera.angle_y)) 
-				* canvas->camera.scale + WIDTH / 2));
-	}
-    z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z * cosf(canvas->camera.angle_y);
-    y_rot_x = ((idx / canvas->map->width) - (canvas->map->height / 2.0f)) * 
-				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x); // Step 2: Apply X-axis rotation to Y and Z_rot_y
-	return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
-} */
-
 void	write_pixel(t_canvas *canvas, int x, int y, int z)
 {
 	unsigned int	*pixel_adr;
 	int				index;
 
-	/* printf("Z: %i\n", z); */
-	if (canvas->map->z_min == canvas->map->z_max)
-		index = 0;
-	else
-	{
-		index = (z - canvas->map->z_min) / (canvas->map->z_max - canvas->map->z_min);
-		index = (int)(index * (COLOR_COUNT - 1));
-		if (index < 0)
-			index = 0;
-		if (index >= COLOR_COUNT)
-			index = COLOR_COUNT - 1;
-	}
 	if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
 	{
 		pixel_adr = (unsigned int *)(canvas->data_adr + (y * canvas->size_line + x * (canvas->bpp >> 3)));
-		*pixel_adr = canvas->color_map[index];
+		*pixel_adr = 0xffffffff;
 	}
 }
 
-/* void write_pixel(t_canvas *canvas, int x, int y, int z) {
-    // Normalize Z locally (e.g., scale to [0, 1] for gradient)
-    float t = (z - canvas->map->z_min) / (canvas->map->z_max - canvas->map->z_min);
-	t = fmaxf(0.0f, fminf(t, 1.0f));
-   
 
-    // Base color (e.g., rotating hue)
-    float hue = fmodf(canvas->camera.angle_y * 10.0f, 360.0f);
-    t_color base_color = hsl_to_rgb(hue, 0.7f, 0.5f);  // Vibrant base
-    t_color peak_color = {255, 255, 255};              // White
-
-    // Blend
-    unsigned int r = (unsigned int)(base_color.r * (1 - t) + peak_color.r * t);
-    unsigned int g = (unsigned int)(base_color.g * (1 - t) + peak_color.g * t);
-    unsigned int b = (unsigned int)(base_color.b * (1 - t) + peak_color.b * t);
-
-    // Draw pixel (with bounds check)
-    if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
-        unsigned int *pixel = (unsigned int *)(canvas->data_adr + y * canvas->size_line + x * (canvas->bpp >> 3));
-        *pixel = (r << 16) | (g << 8) | b;
-    }
-}
-
-t_color hsl_to_rgb(float h, float s, float l) {
-    float c = (1 - fabsf(2 * l - 1)) * s;
-    float x = c * (1 - fabsf(fmodf(h / 60.0f, 2) - 1));
-    float m = l - c / 2;
-    t_color rgb;
-
-    if (h < 60)      { rgb.r = c; rgb.g = x; rgb.b = 0; }
-    else if (h < 120) { rgb.r = x; rgb.g = c; rgb.b = 0; }
-    else if (h < 180) { rgb.r = 0; rgb.g = c; rgb.b = x; }
-    else if (h < 240) { rgb.r = 0; rgb.g = x; rgb.b = c; }
-    else if (h < 300) { rgb.r = x; rgb.g = 0; rgb.b = c; }
-    else              { rgb.r = c; rgb.g = 0; rgb.b = x; }
-
-    rgb.r = (rgb.r + m) * 255;
-    rgb.g = (rgb.g + m) * 255;
-    rgb.b = (rgb.b + m) * 255;
-    return rgb;
-} */
-
-
-
-
-/* int screen_coord(int idx, t_canvas *canvas, char coord)
-{
-    float relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
-    float relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
-    float z = canvas->map->map_data[idx] * canvas->camera.z_mod;
-
-    // Step 1: Apply Y-axis rotation to X and Z
-    float angle_y = canvas->camera.angle_y;
-    float x_rot_y = relat_x * cosf(angle_y) - z * sinf(angle_y);
-    float z_rot_y = relat_x * sinf(angle_y) + z * cosf(angle_y);
-
-    // Step 2: Apply X-axis rotation to Y and Z_rot_y
-    float angle_x = canvas->camera.angle_x;
-    float y_rot_x = relat_y * cosf(angle_x) + z_rot_y * sinf(angle_x);
-
-    // Final projection to screen
-    if (coord == 'x')
-        return (int)(x_rot_y * canvas->camera.scale + WIDTH / 2);
-    else
-        return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
-} */
-
-
-/* int	screen_coord(int idx, t_canvas *canvas, char coord)
-{
-	float	relat_x;
-	float	relat_y;
-	float	rot_x;
-	float	rot_y;
-	float	z;
-
-	z = canvas->map->map_data[idx] * canvas->camera.z_mod;
-	relat_x = (idx % canvas->map->width) - (canvas->map->width >> 1);
-	relat_y = (idx / canvas->map->width) - (canvas->map->height >> 1);
-	rot_x = relat_x * cosf(canvas->camera.angle_y) - (z * sinf(canvas->camera.angle_y));
-	rot_y = relat_y * cosf(canvas->camera.angle_x) + (z * sinf(canvas->camera.angle_x));
-
-	if (coord == 'x')
-		return (int)(rot_x * canvas->camera.scale + WIDTH / 2);
-	return (int)(rot_y * canvas->camera.scale + HEIGHT / 2);
-} */
-
-
-/* 
-// Detailed, better explained screen_coord:
-
-int	screen_coord(int idx, t_canvas *canvas, char coord)
-{
-	int		x = idx % canvas->map->width;
-	int		y = idx / canvas->map->width;
-	int		z = canvas->map->map_data[idx];
-	float	center_x = canvas->map->width / 2.0f;
-	float	center_y = canvas->map->height / 2.0f;
-
-	// Translate to origin (center), rotate, translate back
-	float	rel_x = x - center_x;
-	float	rel_y = y - center_y;
-
-	float	rot_x = rel_x * cosf(canvas->camera.angle_z) - rel_y * sinf(canvas->camera.angle_z);
-	float	rot_y = rel_x * sinf(canvas->camera.angle_z) + rel_y * cosf(canvas->camera.angle_z);
-
-	if (coord == 'x')
-		return (int)(rot_x * SCALE + WIDTH / 2);
-	else
-		return (int)((rot_y - z * canvas->camera.z_bias) * SCALE + HEIGHT / 2);
-} 
-
-*/
 
 
 // finish program with esc, with proper destructions

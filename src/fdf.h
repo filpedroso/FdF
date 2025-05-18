@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/18 12:19:40 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/18 13:03:31 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,17 +34,17 @@
 
 # define ZOOM_IN	24		// Numpad +
 # define ZOOM_OUT	27		// Numpad -
-# define ROTATE_L	123	// Left arrow
-# define ROTATE_R	124	// Right arrow
-# define ROTATE_D	125	// Down arrow
-# define ROTATE_U	126	// Up arrow
-# define Z_PLUS		122		// Z
-# define Z_MINUS	120		// X
+# define ROTATE_L	123		// Left arrow
+# define ROTATE_R	124		// Right arrow
+# define ROTATE_D	125		// Down arrow
+# define ROTATE_U	126		// Up arrow
+# define Z_PLUS		6		// Z
+# define Z_MINUS	7		// X
 # define PAN_L		97		// A
 # define PAN_R		100		// D
 # define CAM_IN		119		// W
 # define CAM_OUT	115		// S
-# define KEY_ESC	53	// ESC
+# define KEY_ESC	53		// ESC
 # define X_CLOSE	17		// X button (Red cross window close event)
 
 
@@ -65,8 +65,6 @@ typedef struct	s_map
 	int	*map_data;
 	int	height;
 	int	width;
-	int	z_min;
-	int	z_max;
 }				t_map;
 
 typedef struct	s_color
@@ -147,7 +145,6 @@ int		mapfill(t_map *map, int fd);
 int		get_line_length(int fd);
 int		gnl_by_ref(int fd, char **line);
 int		numlen(int num);
-void	get_z_reach(t_map *map);
 
 void	null_canvas(t_canvas *canvas);
 int		init_all(t_canvas *canvas);
