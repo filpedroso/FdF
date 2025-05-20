@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/18 13:03:31 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/20 11:25:30 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "../libft/libft.h"
 #include <math.h>
+#include <errno.h>
 #include "../resources/minilibx/mlx.h"
 
 
@@ -25,7 +26,6 @@
 # define WIDTH	1000
 # define HEIGHT	700
 # define B_SIZE	256
-# define COLOR_COUNT 256
 
 
 /* ************************************************************************** */
@@ -52,13 +52,6 @@
 /*                           STRUCTS  &  TYPEDEFS                             */
 /* ************************************************************************** */
 
-typedef struct	s_color_stop
-{
-    float	position;
-    int		r;
-    int		g;
-    int		b;
-}	t_color_stop;
 
 typedef struct	s_map
 {
@@ -67,12 +60,6 @@ typedef struct	s_map
 	int	width;
 }				t_map;
 
-typedef struct	s_color
-{
-    int r;
-    int g;
-    int b;
-} 				t_color;
 
 typedef struct s_camera
 {
@@ -94,7 +81,6 @@ typedef struct	s_canvas
 	int			bpp;
 	t_map		*map;
 	t_camera	camera;
-	int			color_map[COLOR_COUNT];
 }				t_canvas;
 
 typedef struct	s_point
@@ -125,7 +111,6 @@ void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point);
 void	write_pixel(t_canvas *canvas, int x, int y, int z);
 int		screen_coord(int idx, t_canvas *canvas, char coord);
 void	swap_points(t_point *a, t_point *b);
-t_color hsl_to_rgb(float h, float s, float l);
 
 void	install_hooks(t_canvas *canvas);
 int		key_hub(int keycode, t_canvas *canvas);
@@ -149,7 +134,6 @@ int		numlen(int num);
 void	null_canvas(t_canvas *canvas);
 int		init_all(t_canvas *canvas);
 void	destroy_canvas(t_canvas *canvas);
-void	init_color_map(t_canvas *canvas, t_color color);
 int		close_window(t_canvas *canvas);
 
 

@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/18 13:11:50 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/20 11:42:02 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,17 +28,11 @@ int	main(int argc, char **argv)
 		destroy_canvas(&canvas);
 		return (1);
 	}
-	install_hooks(&canvas);
 	fdf_hub(&canvas);
+	mlx_hook(canvas.window, 2, 0, key_hub, &canvas);
+	mlx_hook(canvas.window, 17, 0, close_window, &canvas);
 	mlx_loop(canvas.connection);
 	destroy_canvas(&canvas);
-}
-
-void	install_hooks(t_canvas *canvas)
-{
-	mlx_hook(canvas->window, 2, 0, key_hub, canvas);
-	mlx_hook(canvas->window, 17, 0, close_window, canvas);
-	mlx_hook(canvas->window, 53, 0, close_window, canvas);
 }
 
 int	close_window(t_canvas *canvas)
@@ -49,6 +43,8 @@ int	close_window(t_canvas *canvas)
 
 int	key_hub(int keycode, t_canvas *canvas)
 {
+	if (keycode == KEY_ESC)
+		return (close_window(canvas));
 	if (keycode == ROTATE_L)
 		canvas->camera.angle_y += 0.1f;
 	else if (keycode == ROTATE_R)
@@ -60,12 +56,14 @@ int	key_hub(int keycode, t_canvas *canvas)
 	else if (keycode == ZOOM_IN)
 		canvas->camera.scale++;
 	else if (keycode == ZOOM_OUT)
-		canvas->camera.scale--;
+    {
+        if (canvas->camera.scale > 1)
+            canvas->camera.scale--;
+    }
 	else if (keycode == Z_MINUS)
 		canvas->camera.z_mod -= 0.1f;
 	else if (keycode == Z_PLUS)
 		canvas->camera.z_mod += 0.1f;
-	ft_memset(canvas->data_adr, 0, HEIGHT * canvas->size_line);
 	fdf_hub(canvas);
 	return (1);
 }
@@ -76,8 +74,7 @@ void	fdf_hub(t_canvas *canvas)
 	int	width;
 	int	height;
 
-	// printf("min: %i\n", canvas->map->z_min);
-	// printf("max: %i\n", canvas->map->z_max);
+	ft_memset(canvas->data_adr, 0, HEIGHT * canvas->size_line);
 	idx = 0;
 	width = canvas->map->width;
 	height = canvas->map->height;
@@ -97,11 +94,11 @@ void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
 {
 	t_point	a_point;
 	t_point	b_point;
+	int		idx_limit;
 
-	if (idx_b >= (canvas->map->width * canvas->map->height))
-	{
+	idx_limit = (canvas->map->width * canvas->map->height) - 1;
+	if (idx_b >= idx_limit || idx_a >= idx_limit)
 		return ;
-	}
 	a_point.x = screen_coord(idx_a, canvas, 'x');
 	a_point.y = screen_coord(idx_a, canvas, 'y');
 	a_point.z = canvas->map->map_data[idx_a];
@@ -114,7 +111,6 @@ int screen_coord(int idx, t_canvas *canvas, char coord)
 {
 	float	z;
 	float	relat_x;
-	float	x_rot_y;
 	float	z_rot_y;
 	float	y_rot_x;
 
@@ -137,6 +133,11 @@ void	draw_line(t_canvas *canvas, t_point a_point, t_point b_point)
 	int	delta_x;
 	int	delta_y;
 
+	if (a_point.x == b_point.x && a_point.y == b_point.y)
+    {
+        write_pixel(canvas, a_point.x, a_point.y, a_point.z);
+        return;
+    }
 	delta_x = abs(b_point.x - a_point.x);
 	delta_y = abs(b_point.y - a_point.y);
 	if (a_point.x > b_point.x && delta_y <= delta_x)
@@ -174,12 +175,11 @@ void	draw_shallow(t_canvas *canvas, t_point a_point, t_point b_point)
 		incr = -1;
 		delta_y = -delta_y;
 	}
-	a_point.z_step = (b_point.z - a_point.z) / abs(delta_x);
 	error = (delta_y << 1) - delta_x;
 	while (a_point.x <= b_point.x)
 	{
 		write_pixel(canvas, a_point.x, a_point.y, a_point.z);
-		a_point.z += a_point.z_step;
+		a_point.z++;
 		a_point.x++;
 		if (error >= 0)
 		{
@@ -205,12 +205,11 @@ void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point)
 		incr = -1;
 		delta_x = -delta_x;
 	}
-	a_point.z_step = (b_point.z - a_point.z) / abs(delta_y);
 	error = (delta_x << 1) - delta_y;
 	while (a_point.y <= b_point.y)
 	{
 		write_pixel(canvas, a_point.x, a_point.y, a_point.z);
-		a_point.z += a_point.z_step;
+		a_point.z++;
 		a_point.y++;
 		if (error >= 0)
 		{
