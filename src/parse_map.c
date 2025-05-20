@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:27:24 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/18 12:54:07 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/18 15:14:25 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ t_map	*get_map_info(int fd)
 	map->height = 1;
 	while (1)
 	{
-		line_len = get_line_length(fd); // remember that GNL returns NULL when EOF but also if an error occurs
+		line_len = get_line_length(fd);
 		if (line_len == 0)
 			break;
 		if (line_len != map->width)
@@ -66,6 +66,8 @@ t_map	*get_map_info(int fd)
 		(map->height)++;
 	}
 	map->map_data = (int *)malloc((size_t)(map->width * map->height) * sizeof(int));
+	if (!map->map_data)
+		return (free(map), NULL);
 	return (map);
 }
 
@@ -106,6 +108,11 @@ int	get_line_length(int fd)
 	if (!line)
 		return (0);
 	split_line = ft_split(line, ' ');
+	if (!split_line)
+	{
+    	free(line);
+    	return (0);
+	}
 	free(line);
 	len = 0;
 	while (split_line[len])
@@ -129,6 +136,8 @@ int	numlen(int num)
 {
 	int len;
 
+	if (num == INT_MIN)
+    	return (11);
 	if (num < 0)
 		num = -num;
 	len = 1;
