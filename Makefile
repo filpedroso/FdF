@@ -6,7 +6,7 @@
 #    By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/28 18:27:51 by filpedroso        #+#    #+#              #
-#    Updated: 2025/05/17 18:33:17 by filpedroso       ###   ########.fr        #
+#    Updated: 2025/05/23 12:04:43 by filpedroso       ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,6 +36,7 @@ FILES =				\
 	src/fdf.c		\
 	src/parse_map.c	\
 	src/tools.c		\
+	src/color.c		\
 
 
 # Colors

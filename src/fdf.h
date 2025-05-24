@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/20 11:25:30 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/24 15:59:35 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,9 @@ typedef struct	s_map
 	int	*map_data;
 	int	height;
 	int	width;
+	int	z_max;
+	int	z_min;
+	int	z_value;
 }				t_map;
 
 
@@ -111,6 +114,7 @@ void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point);
 void	write_pixel(t_canvas *canvas, int x, int y, int z);
 int		screen_coord(int idx, t_canvas *canvas, char coord);
 void	swap_points(t_point *a, t_point *b);
+void	reacalc_z_reach(t_map *map, int z);
 
 void	install_hooks(t_canvas *canvas);
 int		key_hub(int keycode, t_canvas *canvas);
@@ -130,11 +134,14 @@ int		mapfill(t_map *map, int fd);
 int		get_line_length(int fd);
 int		gnl_by_ref(int fd, char **line);
 int		numlen(int num);
+void	get_z_reach(t_canvas *canvas);
 
 void	null_canvas(t_canvas *canvas);
 int		init_all(t_canvas *canvas);
 void	destroy_canvas(t_canvas *canvas);
 int		close_window(t_canvas *canvas);
+
+extern const unsigned char g_color_lut[128][3];
 
 
 
