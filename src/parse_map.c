@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:27:24 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/18 15:14:25 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/24 16:01:43 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,6 +147,30 @@ int	numlen(int num)
 		len++;
 	}
 	return (len);
+}
+
+void get_z_reach(t_canvas *canvas)
+{
+	int z_modified;
+	int map_size;
+	int i;
+
+    if (!canvas->map || !canvas->map->map_data)
+		return;
+	map_size = canvas->map->width * canvas->map->height;
+    canvas->map->z_max = INT_MIN;
+    canvas->map->z_min = INT_MAX;
+	i = -1;
+	while (++i < map_size)
+	{
+		z_modified = canvas->map->map_data[i] * canvas->camera.z_mod;
+		if (z_modified > canvas->map->z_max)
+			canvas->map->z_max = z_modified;
+		if (z_modified < canvas->map->z_min)
+			canvas->map->z_min = z_modified;
+	}
+    if (canvas->map->z_max == canvas->map->z_min)
+		canvas->map->z_max = canvas->map->z_min + 1;
 }
 
 // set errno to zero

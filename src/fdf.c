@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/20 11:42:02 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/24 16:03:39 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ void	fdf_hub(t_canvas *canvas)
 			draw_if_valid(canvas, idx, idx + width);
 		idx++;
 	}
+	get_z_reach(canvas);
 	mlx_put_image_to_window(canvas->connection, canvas->window, canvas->image,
 		0, 0);
 }
@@ -107,6 +108,7 @@ void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
 	b_point.z = canvas->map->map_data[idx_b];
 	draw_line(canvas, a_point, b_point);
 }
+
 int screen_coord(int idx, t_canvas *canvas, char coord)
 {
 	float	z;
@@ -123,10 +125,9 @@ int screen_coord(int idx, t_canvas *canvas, char coord)
 	}
     z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z * cosf(canvas->camera.angle_y);
     y_rot_x = ((idx / canvas->map->width) - (canvas->map->height / 2.0f)) * 
-				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x); // Step 2: Apply X-axis rotation to Y and Z_rot_y
+				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x);
 	return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
 }
-
 
 void	draw_line(t_canvas *canvas, t_point a_point, t_point b_point)
 {
@@ -224,13 +225,33 @@ void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point)
 void	write_pixel(t_canvas *canvas, int x, int y, int z)
 {
 	unsigned int	*pixel_adr;
-	int				index;
+	unsigned int	r;
+	unsigned int	g;
+	unsigned int	b;
+	float			norm_z;
 
+	z = (int)(z * canvas->camera.z_mod);
+	reacalc_z_reach(canvas->map, z);
+	norm_z = (float)(z - canvas->map->z_min) / (float)(canvas->map->z_max - canvas->map->z_min);
+	// norm_z = fminf(fmaxf(norm_z, 0.0f), 1.0f);
+	z = (int)(norm_z * 127.0f);
+	r = g_color_lut[z][0];
+	g = g_color_lut[z][1];
+	b = g_color_lut[z][2];
 	if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
 	{
 		pixel_adr = (unsigned int *)(canvas->data_adr + (y * canvas->size_line + x * (canvas->bpp >> 3)));
-		*pixel_adr = 0xffffffff;
+		*pixel_adr = 0xffffff; //(unsigned int)(r << 16 | g << 8 | b);
 	}
+}
+
+void	reacalc_z_reach(t_map *map, int z)
+{
+
+	if (z > map->z_max)
+		map->z_max = z;
+	if (z < map->z_min)
+		map->z_min = z;
 }
 
 
