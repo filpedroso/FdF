@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/24 16:03:39 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/25 12:01:08 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ void	fdf_hub(t_canvas *canvas)
 	int	width;
 	int	height;
 
+	// get_z_reach(canvas);
 	ft_memset(canvas->data_adr, 0, HEIGHT * canvas->size_line);
 	idx = 0;
 	width = canvas->map->width;
@@ -86,7 +87,6 @@ void	fdf_hub(t_canvas *canvas)
 			draw_if_valid(canvas, idx, idx + width);
 		idx++;
 	}
-	get_z_reach(canvas);
 	mlx_put_image_to_window(canvas->connection, canvas->window, canvas->image,
 		0, 0);
 }
@@ -102,10 +102,10 @@ void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
 		return ;
 	a_point.x = screen_coord(idx_a, canvas, 'x');
 	a_point.y = screen_coord(idx_a, canvas, 'y');
-	a_point.z = canvas->map->map_data[idx_a];
+	// a_point.z = canvas->map->map_data[idx_a];
 	b_point.x = screen_coord(idx_b, canvas, 'x');
 	b_point.y = screen_coord(idx_b, canvas, 'y');
-	b_point.z = canvas->map->map_data[idx_b];
+	// b_point.z = canvas->map->map_data[idx_b];
 	draw_line(canvas, a_point, b_point);
 }
 
@@ -129,28 +129,71 @@ int screen_coord(int idx, t_canvas *canvas, char coord)
 	return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
 }
 
-void	draw_line(t_canvas *canvas, t_point a_point, t_point b_point)
+void swap_coords(int *a, int *b)
 {
-	int	delta_x;
-	int	delta_y;
-
-	if (a_point.x == b_point.x && a_point.y == b_point.y)
-    {
-        write_pixel(canvas, a_point.x, a_point.y, a_point.z);
-        return;
-    }
-	delta_x = abs(b_point.x - a_point.x);
-	delta_y = abs(b_point.y - a_point.y);
-	if (a_point.x > b_point.x && delta_y <= delta_x)
-		swap_points(&a_point, &b_point);
-	if (a_point.y > b_point.y && delta_y > delta_x)
-		swap_points(&a_point, &b_point);
-	if (delta_y > delta_x)
-		draw_steep(canvas, a_point, b_point);
-	else
-		draw_shallow(canvas, a_point, b_point);
+    int temp = *a;
+    *a = *b;
+    *b = temp;
 }
 
+void draw_line(t_canvas *canvas, t_point a, t_point b)
+{
+	int			dx;
+	int			dy;
+	t_ab_line	line;
+
+	line.steep = abs(b.y - a.y) > abs(b.x - a.x);
+    if (line.steep)
+    {
+        swap_coords(&a.x, &a.y);
+        swap_coords(&b.x, &b.y);
+    }
+    if (a.x > b.x)
+    {
+        swap_coords(&a.x, &b.x);
+        swap_coords(&a.y, &b.y);
+    }
+	init_line(&line, &a, &b);
+	bresenham(canvas, &line);
+}
+
+void	init_line(t_ab_line	*line, t_point *a, t_point *b)
+{
+	line->ax = a->x;
+	line->ay = a->y;
+	line->bx = b->x;
+	line->by = b->y;
+	line->dx = b->x - a->x;
+	line->dy = abs(b->y - a->y);
+	line->increm = a->y < b->y;
+	if (!line->increm)
+		line->increm = -1;
+}
+void	bresenham(t_canvas *canvas, t_ab_line *line)
+{
+	int	x;
+	int	y;
+	int	error;
+
+	x = line->ax;
+	y = line->ay;
+    error = line->dx >> 1;
+
+	while (x <= line->bx)
+	{
+        if (line->steep)
+            write_pixel(canvas, y, x);
+        else
+            write_pixel(canvas, x, y);
+        error -= line->dy;
+        if (error < 0)
+        {
+            y += line->increm;
+            error += line->dx;
+        }
+		x++;
+	}
+}
 
 void	swap_points(t_point *a, t_point *b)
 {
@@ -161,93 +204,23 @@ void	swap_points(t_point *a, t_point *b)
 	*b = temp;
 }
 
-void	draw_shallow(t_canvas *canvas, t_point a_point, t_point b_point)
-{
-	int	delta_x;
-	int	delta_y;
-	int	error;
-	int incr;
-
-	delta_x = b_point.x - a_point.x;
-	delta_y = b_point.y - a_point.y;
-	incr = 1;
-	if (delta_y < 0)
-	{
-		incr = -1;
-		delta_y = -delta_y;
-	}
-	error = (delta_y << 1) - delta_x;
-	while (a_point.x <= b_point.x)
-	{
-		write_pixel(canvas, a_point.x, a_point.y, a_point.z);
-		a_point.z++;
-		a_point.x++;
-		if (error >= 0)
-		{
-			a_point.y += incr;
-			error -= delta_x << 1;
-		}
-		error += delta_y << 1;
-	}
-}
-
-void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point)
-{
-	int	delta_x;
-	int	delta_y;
-	int	error;
-	int incr;
-
-	delta_x = b_point.x - a_point.x;
-	delta_y = b_point.y - a_point.y;
-	incr = 1;
-	if (delta_x < 0)
-	{
-		incr = -1;
-		delta_x = -delta_x;
-	}
-	error = (delta_x << 1) - delta_y;
-	while (a_point.y <= b_point.y)
-	{
-		write_pixel(canvas, a_point.x, a_point.y, a_point.z);
-		a_point.z++;
-		a_point.y++;
-		if (error >= 0)
-		{
-			a_point.x += incr;
-			error -= delta_y << 1;
-		}
-		error += delta_x << 1;
-	}
-}
 
 
-void	write_pixel(t_canvas *canvas, int x, int y, int z)
+void	write_pixel(t_canvas *canvas, int x, int y)
 {
 	unsigned int	*pixel_adr;
-	unsigned int	r;
-	unsigned int	g;
-	unsigned int	b;
-	float			norm_z;
+	unsigned int	index;
 
-	z = (int)(z * canvas->camera.z_mod);
-	reacalc_z_reach(canvas->map, z);
-	norm_z = (float)(z - canvas->map->z_min) / (float)(canvas->map->z_max - canvas->map->z_min);
-	// norm_z = fminf(fmaxf(norm_z, 0.0f), 1.0f);
-	z = (int)(norm_z * 127.0f);
-	r = g_color_lut[z][0];
-	g = g_color_lut[z][1];
-	b = g_color_lut[z][2];
-	if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
+	index = y * canvas->size_line + x * (canvas->bpp >> 3);
+	if ((x >= 0) && (y >= 0) && (x < WIDTH) && (y < HEIGHT) && (index < canvas->size_line * HEIGHT))
 	{
 		pixel_adr = (unsigned int *)(canvas->data_adr + (y * canvas->size_line + x * (canvas->bpp >> 3)));
-		*pixel_adr = 0xffffff; //(unsigned int)(r << 16 | g << 8 | b);
+		*pixel_adr = 0xffffff;
 	}
 }
 
 void	reacalc_z_reach(t_map *map, int z)
 {
-
 	if (z > map->z_max)
 		map->z_max = z;
 	if (z < map->z_min)
