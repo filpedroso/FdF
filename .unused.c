@@ -192,4 +192,99 @@ void init_color_map(t_canvas *canvas, t_color color)
 	}
 }
 
+void	draw_shallow(t_canvas *canvas, t_point a_point, t_point b_point)
+{
+	int	delta_x;
+	int	delta_y;
+	int	error;
+	int incr;
 
+	delta_x = b_point.x - a_point.x;
+	delta_y = b_point.y - a_point.y;
+	incr = 1;
+	if (delta_y < 0)
+	{
+		incr = -1;
+		delta_y = -delta_y;
+	}
+	error = (delta_y << 1) - delta_x;
+	while (a_point.x <= b_point.x)
+	{
+		write_pixel(canvas, a_point.x, a_point.y, a_point.z);
+		a_point.z++;
+		a_point.x++;
+		if (error >= 0)
+		{
+			a_point.y += incr;
+			error -= delta_x << 1;
+		}
+		error += delta_y << 1;
+	}
+}
+
+void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point)
+{
+	int	delta_x;
+	int	delta_y;
+	int	error;
+	int incr;
+
+	delta_x = b_point.x - a_point.x;
+	delta_y = b_point.y - a_point.y;
+	incr = 1;
+	if (delta_x < 0)
+	{
+		incr = -1;
+		delta_x = -delta_x;
+	}
+	error = (delta_x << 1) - delta_y;
+	while (a_point.y <= b_point.y)
+	{
+		write_pixel(canvas, a_point.x, a_point.y, a_point.z);
+		a_point.z++;
+		a_point.y++;
+		if (error >= 0)
+		{
+			a_point.x += incr;
+			error -= delta_y << 1;
+		}
+		error += delta_x << 1;
+	}
+}
+void	bresenham(t_canvas *canvas, t_point a_point, t_point b_point)
+{
+	int	error;
+	int	increm;
+
+	a_point.d_x = 
+}
+
+
+void	bresenham(t_canvas *canvas, t_ab_line *line)
+{
+	int				x;
+	int				y;
+	int				error;
+	unsigned int	*pixel_adr;
+	unsigned int	index;
+
+	x = line->ax;
+	y = line->ay;
+	error = line->dx >> 1;
+	while (x <= line->bx)
+	{
+		index = y * canvas->size_line + x * (canvas->bpp >> 3);
+		if (index < canvas->size_line * HEIGHT)
+		{
+			pixel_adr = (unsigned int *)(canvas->data_adr + index);
+			*pixel_adr = 0xffffff;
+		}
+		error -= line->dy;
+		if (error < 0)
+		{
+			y += line->increm;
+			error += line->dx;
+		}
+		x++;
+	}
+}

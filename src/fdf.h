@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/24 15:59:35 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/25 12:01:45 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,9 +90,19 @@ typedef struct	s_point
 {
 	int	x;
 	int	y;
-	int z;
-	int	z_step;
 }				t_point;
+
+typedef struct	s_ab_line
+{
+	int	ax;
+	int	ay;
+	int	bx;
+	int	by;
+	int	dx;
+	int	dy;
+	int	increm;
+	int	steep;
+}				t_ab_line;
 
 typedef struct	s_buffer
 {
@@ -111,10 +121,13 @@ void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b);
 void	draw_line(t_canvas *canvas, t_point a_point, t_point b_point);
 void	draw_shallow(t_canvas *canvas, t_point a_point, t_point b_point);
 void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point);
-void	write_pixel(t_canvas *canvas, int x, int y, int z);
+void	write_pixel(t_canvas *canvas, int x, int y);
 int		screen_coord(int idx, t_canvas *canvas, char coord);
 void	swap_points(t_point *a, t_point *b);
 void	reacalc_z_reach(t_map *map, int z);
+void	init_line(t_ab_line	*line, t_point *a, t_point *b);
+void	bresenham(t_canvas *canvas, t_ab_line *line);
+
 
 void	install_hooks(t_canvas *canvas);
 int		key_hub(int keycode, t_canvas *canvas);
