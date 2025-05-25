@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/25 12:01:08 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/25 12:49:29 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
 	int		idx_limit;
 
 	idx_limit = (canvas->map->width * canvas->map->height) - 1;
-	if (idx_b >= idx_limit || idx_a >= idx_limit)
+	if (idx_b > idx_limit || idx_a > idx_limit)
 		return ;
 	a_point.x = screen_coord(idx_a, canvas, 'x');
 	a_point.y = screen_coord(idx_a, canvas, 'y');
@@ -120,13 +120,13 @@ int screen_coord(int idx, t_canvas *canvas, char coord)
     relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
     if (coord == 'x')
 	{
-        return ((int)((relat_x * cosf(canvas->camera.angle_y) - z * sinf(canvas->camera.angle_y)) 
-				* canvas->camera.scale + WIDTH / 2));
+        return (lroundf(((relat_x * cosf(canvas->camera.angle_y) - z * sinf(canvas->camera.angle_y)) 
+				* canvas->camera.scale + WIDTH / 2)));
 	}
     z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z * cosf(canvas->camera.angle_y);
     y_rot_x = ((idx / canvas->map->width) - (canvas->map->height / 2.0f)) * 
 				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x);
-	return (int)(y_rot_x * canvas->camera.scale + HEIGHT / 2);
+	return (lroundf(y_rot_x * canvas->camera.scale + HEIGHT / 2));
 }
 
 void swap_coords(int *a, int *b)
@@ -203,7 +203,6 @@ void	swap_points(t_point *a, t_point *b)
 	*a = *b;
 	*b = temp;
 }
-
 
 
 void	write_pixel(t_canvas *canvas, int x, int y)
