@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: fpedroso <fpedroso@student.42lisboa.com    +#+  +:+       +#+         #
+#    By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/07 09:44:58 by fpedroso          #+#    #+#              #
-#    Updated: 2025/01/25 18:34:33 by fpedroso         ###   ########.fr        #
+#    Updated: 2025/05/26 19:30:50 by filpedroso       ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libft.a
 CC = cc
-CFLAGS = -Wextra -Wall -Werror
+CFLAGS = -g -Wextra -Wall -Werror
 SRC = $(MANDATORY) $(PRINTF) $(BONUS) $(GNL)
 OBJ = $(SRC:.c=.o)
 

@@ -6,7 +6,7 @@
 #    By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/28 18:27:51 by filpedroso        #+#    #+#              #
-#    Updated: 2025/05/23 12:04:43 by filpedroso       ###   ########.fr        #
+#    Updated: 2025/05/26 19:30:46 by filpedroso       ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,8 +14,7 @@
 # Compilation Variables
 NAME = fildefer
 CC = cc
-CFLAGS = # -Wextra -Wall -Werror -Wpedantic -Wconversion -Wstrict-prototypes 
-CFLAGS = # -Wextra -Wall -Werror -Wpedantic -Wconversion -Wstrict-prototypes 
+CFLAGS = -g -Wextra -Wall -Werror -Wpedantic -Wconversion
 SRC = $(FILES)
 OBJ = $(SRC:.c=.o)
 LIBFT = libft/libft.a

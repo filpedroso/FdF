@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fpedroso <fpedroso@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 19:13:26 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/02/26 21:31:20 by fpedroso         ###   ########.fr       */
+/*   Updated: 2025/05/26 18:30:37 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

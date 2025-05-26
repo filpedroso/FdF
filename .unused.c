@@ -8,6 +8,13 @@ const t_color_stop	g_stops[] = {
         {1.00f, 255, 255, 255}  // white
 };
 
+void	reacalc_z_reach(t_map *map, int z)
+{
+	if (z > map->z_max)
+		map->z_max = z;
+	if (z < map->z_min)
+		map->z_min = z;
+}
 
 
 void get_z_reach(t_map *map)
