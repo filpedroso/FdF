@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/25 12:49:29 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/26 19:16:34 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ void	fdf_hub(t_canvas *canvas)
 	int	height;
 
 	// get_z_reach(canvas);
-	ft_memset(canvas->data_adr, 0, HEIGHT * canvas->size_line);
+	ft_memset(canvas->data_adr, 0, HEIGHT * (size_t)canvas->size_line);
 	idx = 0;
 	width = canvas->map->width;
 	height = canvas->map->height;
@@ -120,13 +120,13 @@ int screen_coord(int idx, t_canvas *canvas, char coord)
     relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
     if (coord == 'x')
 	{
-        return (lroundf(((relat_x * cosf(canvas->camera.angle_y) - z * sinf(canvas->camera.angle_y)) 
+        return (int)(lroundf(((relat_x * cosf(canvas->camera.angle_y) - z * sinf(canvas->camera.angle_y)) 
 				* canvas->camera.scale + WIDTH / 2)));
 	}
     z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z * cosf(canvas->camera.angle_y);
     y_rot_x = ((idx / canvas->map->width) - (canvas->map->height / 2.0f)) * 
 				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x);
-	return (lroundf(y_rot_x * canvas->camera.scale + HEIGHT / 2));
+	return (int)(lroundf(y_rot_x * canvas->camera.scale + HEIGHT / 2));
 }
 
 void swap_coords(int *a, int *b)
@@ -138,8 +138,6 @@ void swap_coords(int *a, int *b)
 
 void draw_line(t_canvas *canvas, t_point a, t_point b)
 {
-	int			dx;
-	int			dy;
 	t_ab_line	line;
 
 	line.steep = abs(b.y - a.y) > abs(b.x - a.x);
@@ -207,26 +205,16 @@ void	swap_points(t_point *a, t_point *b)
 
 void	write_pixel(t_canvas *canvas, int x, int y)
 {
-	unsigned int	*pixel_adr;
-	unsigned int	index;
+	size_t		*pixel_adr;
+	size_t			index;
 
-	index = y * canvas->size_line + x * (canvas->bpp >> 3);
-	if ((x >= 0) && (y >= 0) && (x < WIDTH) && (y < HEIGHT) && (index < canvas->size_line * HEIGHT))
+	index = (size_t)(y * canvas->size_line + x * (canvas->bpp >> 3));
+	if ((x >= 0) && (y >= 0) && (x < WIDTH) && (y < HEIGHT) && (index < (size_t)canvas->size_line * HEIGHT))
 	{
-		pixel_adr = (unsigned int *)(canvas->data_adr + (y * canvas->size_line + x * (canvas->bpp >> 3)));
+		pixel_adr = (size_t *)(canvas->data_adr + index);
 		*pixel_adr = 0xffffff;
 	}
 }
-
-void	reacalc_z_reach(t_map *map, int z)
-{
-	if (z > map->z_max)
-		map->z_max = z;
-	if (z < map->z_min)
-		map->z_min = z;
-}
-
-
 
 
 // finish program with esc, with proper destructions

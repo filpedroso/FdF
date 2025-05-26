@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fpedroso <fpedroso@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/11 17:01:17 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/01/06 13:29:49 by fpedroso         ###   ########.fr       */
+/*   Updated: 2025/05/26 18:30:14 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

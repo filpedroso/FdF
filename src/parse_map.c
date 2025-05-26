@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:27:24 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/24 16:01:43 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/26 19:58:22 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,14 +82,17 @@ int	mapfill(t_map *map, int fd)
 	while (gnl_by_ref(fd, &line))
 	{
 		ptr = line;
-		x = 0;
-		while (x < map->width)
+		x = -1;
+		while (++x < map->width)
 		{
 			map->map_data[y * map->width + x] = ft_atoi(ptr);
 			ptr += numlen(map->map_data[y * map->width + x]);
-			while (*ptr == ' ')
+			if (*ptr == ',')
+			{
+				while (*ptr != ' ')
+					ptr++;
 				ptr++;
-			x++;
+			}
 		}
 		free(line);
 		y++;
@@ -151,9 +154,9 @@ int	numlen(int num)
 
 void get_z_reach(t_canvas *canvas)
 {
-	int z_modified;
-	int map_size;
-	int i;
+	float	z_modified;
+	int 	map_size;
+	int 	i;
 
     if (!canvas->map || !canvas->map->map_data)
 		return;
@@ -165,9 +168,9 @@ void get_z_reach(t_canvas *canvas)
 	{
 		z_modified = canvas->map->map_data[i] * canvas->camera.z_mod;
 		if (z_modified > canvas->map->z_max)
-			canvas->map->z_max = z_modified;
+			canvas->map->z_max = (int)z_modified;
 		if (z_modified < canvas->map->z_min)
-			canvas->map->z_min = z_modified;
+			canvas->map->z_min = (int)z_modified;
 	}
     if (canvas->map->z_max == canvas->map->z_min)
 		canvas->map->z_max = canvas->map->z_min + 1;
