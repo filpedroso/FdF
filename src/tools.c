@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:30:18 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/27 10:36:04 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/27 13:23:34 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,9 @@ int	init_all(t_canvas *canvas)
 	if (canvas->image == NULL)
 		return (0);
 	canvas->data_adr = mlx_get_data_addr(canvas->image, &canvas->bpp, &canvas->size_line, &canvas->endian);
+	get_z_reach(canvas);
 	reset_values(canvas);
+	init_color_lut(canvas);
 	return (1);
 }
 

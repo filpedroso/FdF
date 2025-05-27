@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:27:24 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/27 09:01:49 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/27 13:23:09 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,9 +161,9 @@ int	numlen(int num)
 
 void get_z_reach(t_canvas *canvas)
 {
-	float	z_modified;
-	int 	map_size;
-	int 	i;
+	int	z;
+	int map_size;
+	int i;
 
     if (!canvas->map || !canvas->map->map_data)
 		return;
@@ -173,11 +173,11 @@ void get_z_reach(t_canvas *canvas)
 	i = -1;
 	while (++i < map_size)
 	{
-		z_modified = canvas->map->map_data[i] * canvas->camera.z_mod;
-		if (z_modified > canvas->map->z_max)
-			canvas->map->z_max = (int)z_modified;
-		if (z_modified < canvas->map->z_min)
-			canvas->map->z_min = (int)z_modified;
+		z = canvas->map->map_data[i];
+		if (z > canvas->map->z_max)
+			canvas->map->z_max = z;
+		if (z < canvas->map->z_min)
+			canvas->map->z_min = z;
 	}
     if (canvas->map->z_max == canvas->map->z_min)
 		canvas->map->z_max = canvas->map->z_min + 1;
