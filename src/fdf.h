@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/27 10:39:58 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/27 13:26:56 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,6 @@ typedef struct	s_map
 	int	width;
 	int	z_max;
 	int	z_min;
-	int	z_value;
 }				t_map;
 
 
@@ -81,12 +80,15 @@ typedef struct	s_canvas
 	int			bpp;
 	t_map		*map;
 	t_camera	camera;
+	size_t		color_lut[256];
+
 }				t_canvas;
 
 typedef struct	s_point
 {
 	int	x;
 	int	y;
+	int	z;
 }				t_point;
 
 typedef struct	s_ab_line
@@ -97,6 +99,9 @@ typedef struct	s_ab_line
 	int	by;
 	int	dx;
 	int	dy;
+	int z_a;
+	int z_b;
+	float	z_step;
 	int	increm;
 	int	steep;
 }				t_ab_line;
@@ -118,12 +123,13 @@ void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b);
 void	draw_line(t_canvas *canvas, t_point a_point, t_point b_point);
 void	draw_shallow(t_canvas *canvas, t_point a_point, t_point b_point);
 void	draw_steep(t_canvas *canvas, t_point a_point, t_point b_point);
-void	write_pixel(t_canvas *canvas, int x, int y);
+void	write_pixel(t_canvas *canvas, int x, int y, size_t color);
 int		screen_coord(int idx, t_canvas *canvas, char coord);
 void	swap_points(t_point *a, t_point *b);
 void	reacalc_z_reach(t_map *map, int z);
 void	init_line(t_ab_line	*line, t_point *a, t_point *b);
 void	bresenham(t_canvas *canvas, t_ab_line *line);
+int		safe_to_write(int x, int y, size_t index, int line_size);
 
 
 void	install_hooks(t_canvas *canvas);
@@ -155,7 +161,8 @@ int		close_window(t_canvas *canvas);
 void	draw_hud(t_canvas *canvas);
 void	reset_values(t_canvas *canvas);
 
-extern const unsigned char g_color_lut[128][3];
+size_t get_color(float z, t_canvas *canvas);
+void	init_color_lut(t_canvas *canvas);
 
 
 

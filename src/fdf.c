@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/27 10:42:34 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/27 14:17:22 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,8 @@ void	draw_hud(t_canvas *canvas)
 	i = 0;
 	while (hud_text[i])
 	{
-		mlx_string_put(canvas->connection, canvas->window, x, y, HUD_COLOR, (char *)hud_text[i]);
+		mlx_string_put(canvas->connection, canvas->window, x, y,
+			HUD_COLOR, (char *)hud_text[i]);
 		i++;
 		y += 18;
 	}
@@ -130,31 +131,11 @@ void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
 		return ;
 	a_point.x = screen_coord(idx_a, canvas, 'x');
 	a_point.y = screen_coord(idx_a, canvas, 'y');
-	// a_point.z = canvas->map->map_data[idx_a];
+	a_point.z = canvas->map->map_data[idx_a];
 	b_point.x = screen_coord(idx_b, canvas, 'x');
+	b_point.z = canvas->map->map_data[idx_b];
 	b_point.y = screen_coord(idx_b, canvas, 'y');
-	// b_point.z = canvas->map->map_data[idx_b];
 	draw_line(canvas, a_point, b_point);
-}
-
-int screen_coord(int idx, t_canvas *canvas, char coord)
-{
-	float	z;
-	float	relat_x;
-	float	z_rot_y;
-	float	y_rot_x;
-
-    z = canvas->map->map_data[idx] * canvas->camera.z_mod;
-    relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
-    if (coord == 'y')
-	{
-        return (int)(lroundf(((relat_x * cosf(canvas->camera.angle_y) - z * sinf(canvas->camera.angle_y)) 
-				* canvas->camera.scale + HEIGHT / 2)));
-	}
-    z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z * cosf(canvas->camera.angle_y);
-    y_rot_x = ((idx / canvas->map->width) - (canvas->map->height / 2.0f)) * 
-				cosf(canvas->camera.angle_x) - z_rot_y * sinf(canvas->camera.angle_x);
-	return (int)(lroundf(y_rot_x * canvas->camera.scale + WIDTH / 2));
 }
 
 
@@ -184,6 +165,54 @@ void draw_line(t_canvas *canvas, t_point a, t_point b)
 	bresenham(canvas, &line);
 }
 
+/* int screen_coord(int idx, t_canvas *canvas, char coord)
+{
+    float z = canvas->map->map_data[idx] * canvas->camera.z_mod + 0.1f; // Small Z-offset
+    float x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
+    float y = (idx / canvas->map->width) - (canvas->map->height / 2.0f);
+
+    // Clamp angles to avoid gimbal lock
+    float angle_x = (float)fmod(canvas->camera.angle_x, 2 * M_PI);
+    float angle_y = (float)fmod(canvas->camera.angle_y, 2 * M_PI);
+
+    // Apply X-rotation first (pitch)
+    float y_rot_x = y * cosf(angle_x) - z * sinf(angle_x);
+    float z_rot_x = y * sinf(angle_x) + z * cosf(angle_x);
+
+    // Then apply Y-rotation (yaw)
+    float x_rot_y = x * cosf(angle_y) - z_rot_x * sinf(angle_y);
+    // float z_rot_y = x * sinf(angle_y) + z_rot_x * cosf(angle_y);
+
+    if (coord == 'x')
+        return ((int)(x_rot_y * canvas->camera.scale + WIDTH / 2));
+    else if (coord == 'y')
+        return ((int)(y_rot_x * canvas->camera.scale + HEIGHT / 2));
+    return 0;
+} */
+
+int screen_coord(int idx, t_canvas *canvas, char coord)
+{
+	float	z;
+	float	relat_x;
+	float	z_rot_y;
+	float	y_rot_x;
+
+    z = canvas->map->map_data[idx] * canvas->camera.z_mod;
+    relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
+    if (coord == 'y')
+	{
+        return ((int)((relat_x * cosf(canvas->camera.angle_y) - z *
+			sinf(canvas->camera.angle_y)) *
+				canvas->camera.scale + HEIGHT / 2));
+	}
+    z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z *
+				cosf(canvas->camera.angle_y);
+    y_rot_x = ((idx / canvas->map->width) - (canvas->map->height / 2.0f)) * 
+				cosf(canvas->camera.angle_x) - z_rot_y *
+					sinf(canvas->camera.angle_x);
+	return ((int)(y_rot_x * canvas->camera.scale + WIDTH / 2));
+}
+
 void	init_line(t_ab_line	*line, t_point *a, t_point *b)
 {
 	line->ax = a->x;
@@ -193,25 +222,34 @@ void	init_line(t_ab_line	*line, t_point *a, t_point *b)
 	line->dx = b->x - a->x;
 	line->dy = abs(b->y - a->y);
 	line->increm = a->y < b->y;
+	line->z_a = a->z;
+	line->z_b = b->z;
+	if (line->dx)
+		line->z_step = (float)(b->z - a->z) / line->dx;
+	else
+		line->z_step = (float)(b->z - a->z);
 	if (!line->increm)
 		line->increm = -1;
 }
 void	bresenham(t_canvas *canvas, t_ab_line *line)
 {
-	int	x;
-	int	y;
-	int	error;
+	int		x;
+	int		y;
+	int		error;
+	size_t	color;
+	float	z_value;
 
 	x = line->ax;
 	y = line->ay;
+	z_value = (float)line->z_a;
     error = line->dx >> 1;
-
 	while (x <= line->bx)
 	{
+		color = get_color(z_value, canvas);
         if (line->steep)
-            write_pixel(canvas, y, x);
+            write_pixel(canvas, y, x, color);
         else
-            write_pixel(canvas, x, y);
+            write_pixel(canvas, x, y, color);
         error -= line->dy;
         if (error < 0)
         {
@@ -219,6 +257,7 @@ void	bresenham(t_canvas *canvas, t_ab_line *line)
             error += line->dx;
         }
 		x++;
+		z_value += line->z_step;
 	}
 }
 
@@ -232,17 +271,26 @@ void	swap_points(t_point *a, t_point *b)
 }
 
 
-void	write_pixel(t_canvas *canvas, int x, int y)
+void	write_pixel(t_canvas *canvas, int x, int y, size_t color)
 {
 	size_t		*pixel_adr;
 	size_t			index;
 
 	index = (size_t)(y * canvas->size_line + x * (canvas->bpp >> 3));
-	if ((x >= 0) && (y >= 0) && (x < WIDTH) && (y < HEIGHT) && (index < (size_t)canvas->size_line * HEIGHT))
+	if (safe_to_write(x, y, index, canvas->size_line))
 	{
 		pixel_adr = (size_t *)(canvas->data_adr + index);
-		*pixel_adr = 0xffffff;
+		*pixel_adr = color;
 	}
+}
+
+int	safe_to_write(int x, int y, size_t index, int line_size)
+{
+	return ((x >= 0) &&
+			(y >= 0) &&
+			(x < WIDTH) &&
+			(y < HEIGHT) &&
+			(index < (size_t)line_size * HEIGHT));
 }
 
 
