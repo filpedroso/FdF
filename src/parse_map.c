@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:27:24 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/26 19:58:22 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/27 09:01:49 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,22 +82,29 @@ int	mapfill(t_map *map, int fd)
 	while (gnl_by_ref(fd, &line))
 	{
 		ptr = line;
-		x = -1;
-		while (++x < map->width)
+		x = 0;
+		while (x < map->width)
 		{
-			map->map_data[y * map->width + x] = ft_atoi(ptr);
-			ptr += numlen(map->map_data[y * map->width + x]);
-			if (*ptr == ',')
-			{
-				while (*ptr != ' ')
-					ptr++;
-				ptr++;
-			}
+			get_map_data(map, &ptr, x, y);
+			x++;
 		}
 		free(line);
 		y++;
 	}
 	return (1);
+}
+
+void	get_map_data(t_map *map, char **ptr, int x, int y)
+{
+	map->map_data[y * map->width + x] = ft_atoi(*ptr);
+	(*ptr) += numlen(map->map_data[y * map->width + x]);
+	if (**ptr == ',')
+	{
+		while (**ptr != ' ')
+			(*ptr)++;
+	}
+	while (**ptr == ' ')
+		(*ptr)++;
 }
 
 

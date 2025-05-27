@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/25 12:01:45 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/27 10:39:58 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,17 @@
 
 
 /* ************************************************************************** */
-/*                              SIZES DEFINES                                 */
+/*                                DEFINES                                     */
 /* ************************************************************************** */
 
-# define WIDTH	1000
-# define HEIGHT	700
-# define B_SIZE	256
+# define WIDTH		1000
+# define HEIGHT		700
+# define B_SIZE		256
+# define HUD_COLOR	0xADD8E6
 
 
 /* ************************************************************************** */
-/*                         KEYCODE & MOUSE DEFINES                            */
+/*                           KEYCODE & MOUSE                                  */
 /* ************************************************************************** */
 
 # define ZOOM_IN	24		// Numpad +
@@ -40,10 +41,7 @@
 # define ROTATE_U	126		// Up arrow
 # define Z_PLUS		6		// Z
 # define Z_MINUS	7		// X
-# define PAN_L		97		// A
-# define PAN_R		100		// D
-# define CAM_IN		119		// W
-# define CAM_OUT	115		// S
+# define RESET		15		// R
 # define KEY_ESC	53		// ESC
 # define X_CLOSE	17		// X button (Red cross window close event)
 
@@ -51,7 +49,6 @@
 /* ************************************************************************** */
 /*                           STRUCTS  &  TYPEDEFS                             */
 /* ************************************************************************** */
-
 
 typedef struct	s_map
 {
@@ -148,11 +145,15 @@ int		get_line_length(int fd);
 int		gnl_by_ref(int fd, char **line);
 int		numlen(int num);
 void	get_z_reach(t_canvas *canvas);
+void	get_map_data(t_map *map, char **ptr, int x, int y);
+
 
 void	null_canvas(t_canvas *canvas);
 int		init_all(t_canvas *canvas);
 void	destroy_canvas(t_canvas *canvas);
 int		close_window(t_canvas *canvas);
+void	draw_hud(t_canvas *canvas);
+void	reset_values(t_canvas *canvas);
 
 extern const unsigned char g_color_lut[128][3];
 
