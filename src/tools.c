@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:30:18 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/26 19:18:25 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/27 10:36:04 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,14 @@ int	init_all(t_canvas *canvas)
 	if (canvas->image == NULL)
 		return (0);
 	canvas->data_adr = mlx_get_data_addr(canvas->image, &canvas->bpp, &canvas->size_line, &canvas->endian);
-	canvas->camera.angle_x = (float)M_PI / 11;
-	canvas->camera.angle_y = (float)M_PI / 9;
+	reset_values(canvas);
+	return (1);
+}
+
+void	reset_values(t_canvas *canvas)
+{
+	canvas->camera.angle_x = (float)M_PI / 6;
+	canvas->camera.angle_y = (float)M_PI / 3;
 	canvas->camera.scale = 1000 / (canvas->map->width + canvas->map->height);
 	canvas->camera.z_mod = 0.6f;
-	return (1);
 }

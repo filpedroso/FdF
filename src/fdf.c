@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/26 19:16:34 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/27 10:42:34 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,13 +45,13 @@ int	key_hub(int keycode, t_canvas *canvas)
 {
 	if (keycode == KEY_ESC)
 		return (close_window(canvas));
-	if (keycode == ROTATE_L)
+	if (keycode == ROTATE_U)
 		canvas->camera.angle_y += 0.1f;
-	else if (keycode == ROTATE_R)
-		canvas->camera.angle_y -= 0.1f;
 	else if (keycode == ROTATE_D)
+		canvas->camera.angle_y -= 0.1f;
+	else if (keycode == ROTATE_R)
 		canvas->camera.angle_x += 0.1f;
-	else if (keycode == ROTATE_U)
+	else if (keycode == ROTATE_L)
 		canvas->camera.angle_x -= 0.1f;
 	else if (keycode == ZOOM_IN)
 		canvas->camera.scale++;
@@ -64,8 +64,9 @@ int	key_hub(int keycode, t_canvas *canvas)
 		canvas->camera.z_mod -= 0.1f;
 	else if (keycode == Z_PLUS)
 		canvas->camera.z_mod += 0.1f;
-	fdf_hub(canvas);
-	return (1);
+	else if (keycode == RESET)
+		reset_values(canvas);
+	return (fdf_hub(canvas), 1);
 }
 
 void	fdf_hub(t_canvas *canvas)
@@ -89,6 +90,33 @@ void	fdf_hub(t_canvas *canvas)
 	}
 	mlx_put_image_to_window(canvas->connection, canvas->window, canvas->image,
 		0, 0);
+	draw_hud(canvas);
+}
+
+void	draw_hud(t_canvas *canvas)
+{
+	char	*hud_text[] = {
+	"controls:",
+	" ",
+	"move:       arrow keys",
+	"zoom:       +/-",
+	"change z:   z/x",
+	"reset:      r",
+	"exit:       esc",
+	NULL};
+	int		x;
+	int		y;
+	int		i;
+
+	x = WIDTH >> 4;
+	y = 30;
+	i = 0;
+	while (hud_text[i])
+	{
+		mlx_string_put(canvas->connection, canvas->window, x, y, HUD_COLOR, (char *)hud_text[i]);
+		i++;
+		y += 18;
+	}
 }
 
 void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
@@ -118,16 +146,17 @@ int screen_coord(int idx, t_canvas *canvas, char coord)
 
     z = canvas->map->map_data[idx] * canvas->camera.z_mod;
     relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
-    if (coord == 'x')
+    if (coord == 'y')
 	{
         return (int)(lroundf(((relat_x * cosf(canvas->camera.angle_y) - z * sinf(canvas->camera.angle_y)) 
-				* canvas->camera.scale + WIDTH / 2)));
+				* canvas->camera.scale + HEIGHT / 2)));
 	}
     z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z * cosf(canvas->camera.angle_y);
     y_rot_x = ((idx / canvas->map->width) - (canvas->map->height / 2.0f)) * 
-				cosf(canvas->camera.angle_x) + z_rot_y * sinf(canvas->camera.angle_x);
-	return (int)(lroundf(y_rot_x * canvas->camera.scale + HEIGHT / 2));
+				cosf(canvas->camera.angle_x) - z_rot_y * sinf(canvas->camera.angle_x);
+	return (int)(lroundf(y_rot_x * canvas->camera.scale + WIDTH / 2));
 }
+
 
 void swap_coords(int *a, int *b)
 {
