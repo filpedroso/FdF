@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/28 18:50:54 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/28 20:20:05 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,10 @@ static int	key_hub(int keycode, t_canvas *canvas)
 	else if (keycode == ZOOM_IN)
 		canvas->camera.scale++;
 	else if (keycode == ZOOM_OUT)
-    {
-        if (canvas->camera.scale > 1)
-            canvas->camera.scale--;
-    }
+	{
+		if (canvas->camera.scale > 1)
+			canvas->camera.scale--;
+	}
 	else if (keycode == Z_MINUS)
 		canvas->camera.z_mod -= 0.1f;
 	else if (keycode == Z_PLUS)
@@ -65,7 +65,7 @@ static int	key_hub(int keycode, t_canvas *canvas)
 	return (fdf_hub(canvas), 1);
 }
 
-static void update_y(int keycode, t_canvas *canvas)
+static void	update_y(int keycode, t_canvas *canvas)
 {
 	if (keycode == ROTATE_U)
 		canvas->camera.angle_y += 0.1f;
@@ -85,39 +85,35 @@ void	bresenham(t_canvas *canvas, t_ab_line *line)
 	size_t	color;
 	float	z_value;
 
-	x = line->ax;
+	x = line->ax - 1;
 	y = line->ay;
 	z_value = (float)line->z_a;
-    error = line->dx >> 1;
-	while (x <= line->bx)
+	error = line->dx >> 1;
+	while (++x <= line->bx)
 	{
 		color = get_color(z_value, canvas);
-        if (line->steep)
-            write_pixel(canvas, y, x, color);
-        else
-            write_pixel(canvas, x, y, color);
-        error -= line->dy;
-        if (error < 0)
-        {
-            y += line->increm;
-            error += line->dx;
-        }
-		x++;
+		if (line->steep)
+			write_pixel(canvas, y, x, color);
+		else
+			write_pixel(canvas, x, y, color);
+		error -= line->dy;
+		if (error < 0)
+		{
+			y += line->increm;
+			error += line->dx;
+		}
 		z_value += line->z_step;
 	}
 }
 
 static void	write_pixel(t_canvas *canvas, int x, int y, size_t color)
 {
-	size_t		*pixel_adr;
-	size_t			index;
+	size_t	*pixel_adr;
+	size_t	index;
 
 	index = (size_t)(y * canvas->size_line + x * (canvas->bpp >> 3));
-	if ((x >= 0) &&
-		(y >= 0) &&
-		(x < WIDTH) &&
-		(y < HEIGHT) &&
-		(index < (size_t)canvas->size_line * HEIGHT))
+	if ((x >= 0) && (y >= 0) && (x < WIDTH) && (y < HEIGHT)
+		&& (index < (size_t)canvas->size_line * HEIGHT))
 	{
 		pixel_adr = (size_t *)(canvas->data_adr + index);
 		*pixel_adr = color;

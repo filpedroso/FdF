@@ -6,19 +6,19 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:30:18 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/28 18:06:41 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/28 20:17:06 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
 
-void destroy_canvas(t_canvas *canvas)
+void	destroy_canvas(t_canvas *canvas)
 {
-    if (canvas->window)
-        mlx_destroy_window(canvas->connection, canvas->window);
-    if (canvas->image)
-        mlx_destroy_image(canvas->connection, canvas->image);
-    free_map(canvas->map);
+	if (canvas->window)
+		mlx_destroy_window(canvas->connection, canvas->window);
+	if (canvas->image)
+		mlx_destroy_image(canvas->connection, canvas->image);
+	free_map(canvas->map);
 }
 
 int	close_window(t_canvas *canvas)
@@ -50,7 +50,8 @@ int	init_all(t_canvas *canvas)
 	canvas->image = mlx_new_image(canvas->connection, WIDTH, HEIGHT);
 	if (canvas->image == NULL)
 		return (0);
-	canvas->data_adr = mlx_get_data_addr(canvas->image, &canvas->bpp, &canvas->size_line, &canvas->endian);
+	canvas->data_adr = mlx_get_data_addr(canvas->image, &canvas->bpp,
+			&canvas->size_line, &canvas->endian);
 	get_z_reach(canvas);
 	reset_values(canvas);
 	init_color_lut(canvas);

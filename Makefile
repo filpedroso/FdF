@@ -14,7 +14,7 @@
 # Compilation Variables
 NAME = fildefer
 CC = cc
-CFLAGS = -g -Wextra -Wall -Werror -Wpedantic -Wconversion
+CFLAGS = -Wextra -Wall -Werror -Wpedantic -Wconversion
 SRC = $(FILES)
 OBJ = $(SRC:.c=.o)
 LIBFT = libft/libft.a
