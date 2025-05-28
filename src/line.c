@@ -6,42 +6,44 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 18:32:28 by filpedroso        #+#    #+#             */
-/*   Updated: 2025/05/28 18:39:00 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/28 20:18:19 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "fdf.h"
+#include "fdf.h"
 
-void	init_line(t_ab_line	*line, t_point *a, t_point *b);
-void 	swap_coords(int *a, int *b);
+void	init_line(t_ab_line *line, t_point *a, t_point *b);
+void	swap_coords(int *a, int *b);
 
-void draw_line(t_canvas *canvas, t_point a, t_point b)
+void	draw_line(t_canvas *canvas, t_point a, t_point b)
 {
 	t_ab_line	line;
 
 	line.steep = abs(b.y - a.y) > abs(b.x - a.x);
-    if (line.steep)
-    {
-        swap_coords(&a.x, &a.y);
-        swap_coords(&b.x, &b.y);
-    }
-    if (a.x > b.x)
-    {
-        swap_coords(&a.x, &b.x);
-        swap_coords(&a.y, &b.y);
-    }
+	if (line.steep)
+	{
+		swap_coords(&a.x, &a.y);
+		swap_coords(&b.x, &b.y);
+	}
+	if (a.x > b.x)
+	{
+		swap_coords(&a.x, &b.x);
+		swap_coords(&a.y, &b.y);
+	}
 	init_line(&line, &a, &b);
 	bresenham(canvas, &line);
 }
 
-void swap_coords(int *a, int *b)
+void	swap_coords(int *a, int *b)
 {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
+	int	temp;
+
+	temp = *a;
+	*a = *b;
+	*b = temp;
 }
 
-void	init_line(t_ab_line	*line, t_point *a, t_point *b)
+void	init_line(t_ab_line *line, t_point *a, t_point *b)
 {
 	line->ax = a->x;
 	line->ay = a->y;

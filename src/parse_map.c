@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:27:24 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/28 18:18:00 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/28 20:17:48 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,12 +57,13 @@ static t_map	*get_map_info(int fd)
 	{
 		line_len = get_line_length(fd);
 		if (line_len == 0)
-			break;
+			break ;
 		if (line_len != map->width)
 			return (0);
 		(map->height)++;
 	}
-	map->map_data = (int *)malloc((size_t)(map->width * map->height) * sizeof(int));
+	map->map_data = (int *)malloc((size_t)(map->width * map->height)
+			* sizeof(int));
 	if (!map->map_data)
 		return (free(map), NULL);
 	return (map);
@@ -104,7 +105,6 @@ static void	get_map_data(t_map *map, char **ptr, int x, int y)
 		(*ptr)++;
 }
 
-
 static int	get_line_length(int fd)
 {
 	char	*line;
@@ -117,8 +117,8 @@ static int	get_line_length(int fd)
 	split_line = ft_split(line, ' ');
 	if (!split_line)
 	{
-    	free(line);
-    	return (0);
+		free(line);
+		return (0);
 	}
 	free(line);
 	len = 0;

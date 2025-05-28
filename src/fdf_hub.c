@@ -6,11 +6,11 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 18:27:00 by filpedroso        #+#    #+#             */
-/*   Updated: 2025/05/28 18:35:18 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/28 20:23:06 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "fdf.h"
+#include "fdf.h"
 
 static void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b);
 static int	screen_coord(int idx, t_canvas *canvas, char coord);
@@ -57,7 +57,7 @@ static void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
 	draw_line(canvas, a_point, b_point);
 }
 
-static int screen_coord(int idx, t_canvas *canvas, char coord)
+static int	screen_coord(int idx, t_canvas *canvas, char coord)
 {
 	float	z;
 	float	relat_x;
@@ -65,45 +65,38 @@ static int screen_coord(int idx, t_canvas *canvas, char coord)
 	float	z_rot_y;
 	float	y_rot_x;
 
-    z = canvas->map->map_data[idx] * canvas->camera.z_mod;
-    relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
-    if (coord == 'x')
+	z = canvas->map->map_data[idx] * canvas->camera.z_mod;
+	relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
+	if (coord == 'x')
 	{
-        return ((int)((relat_x * cosf(canvas->camera.angle_x) - z *
-			sinf(canvas->camera.angle_x)) *
-				canvas->camera.scale + WIDTH / 2));
+		return ((int)((relat_x * cosf(canvas->camera.angle_x) - z
+				* sinf(canvas->camera.angle_x)) * canvas->camera.scale
+			+ WIDTH / 2));
 	}
-    z_rot_y = relat_x * sinf(canvas->camera.angle_x) + z *
-				cosf(canvas->camera.angle_x);
+	z_rot_y = relat_x * sinf(canvas->camera.angle_x) + z
+		* cosf(canvas->camera.angle_x);
 	relat_y = (idx / canvas->map->width) - (canvas->map->height / 2.0f);
-    y_rot_x = (relat_y) * cosf(canvas->camera.angle_y) - z_rot_y *
-					sinf(canvas->camera.angle_y);
+	y_rot_x = (relat_y) * cosf(canvas->camera.angle_y) - z_rot_y
+		* sinf(canvas->camera.angle_y);
 	return ((int)(y_rot_x * canvas->camera.scale + HEIGHT / 2));
 }
 
 static void	draw_hud(t_canvas *canvas)
 {
-	char	*hud_text[] = {
-	"controls:",
-	" ",
-	"move:       arrow keys",
-	"zoom:       +/-",
-	"change z:   z/x",
-	"reset:      r",
-	"exit:       esc",
-	NULL};
-	int		x;
-	int		y;
-	int		i;
+	int	x;
 
 	x = WIDTH >> 4;
-	y = 30;
-	i = 0;
-	while (hud_text[i])
-	{
-		mlx_string_put(canvas->connection, canvas->window, x, y,
-			HUD_COLOR, (char *)hud_text[i]);
-		i++;
-		y += 18;
-	}
+	mlx_string_put(canvas->connection, canvas->window, x, 30, HUD_COLOR,
+		"controls:");
+	mlx_string_put(canvas->connection, canvas->window, x, 50, HUD_COLOR, " ");
+	mlx_string_put(canvas->connection, canvas->window, x, 70, HUD_COLOR,
+		"move:       arrow keys");
+	mlx_string_put(canvas->connection, canvas->window, x, 90, HUD_COLOR,
+		"zoom:       +/-");
+	mlx_string_put(canvas->connection, canvas->window, x, 110, HUD_COLOR,
+		"change z:   z/x");
+	mlx_string_put(canvas->connection, canvas->window, x, 130, HUD_COLOR,
+		"reset:      r");
+	mlx_string_put(canvas->connection, canvas->window, x, 150, HUD_COLOR,
+		"exit:       esc");
 }
