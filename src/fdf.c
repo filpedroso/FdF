@@ -6,11 +6,15 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/28 18:00:53 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/28 18:50:54 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
+
+static int	key_hub(int keycode, t_canvas *canvas);
+static void	update_y(int keycode, t_canvas *canvas);
+static void	write_pixel(t_canvas *canvas, int x, int y, size_t color);
 
 int	main(int argc, char **argv)
 {
@@ -35,13 +39,7 @@ int	main(int argc, char **argv)
 	destroy_canvas(&canvas);
 }
 
-int	close_window(t_canvas *canvas)
-{
-	destroy_canvas(canvas);
-	exit(0);
-}
-
-int	key_hub(int keycode, t_canvas *canvas)
+static int	key_hub(int keycode, t_canvas *canvas)
 {
 	if (keycode == KEY_ESC)
 		return (close_window(canvas));
@@ -67,191 +65,18 @@ int	key_hub(int keycode, t_canvas *canvas)
 	return (fdf_hub(canvas), 1);
 }
 
-void update_y(int keycode, t_canvas *canvas)
+static void update_y(int keycode, t_canvas *canvas)
 {
-	float	limit_up;
-	float	limit_dn;
-
-	limit_up = 3.1f;
-	limit_dn = -0.01f;
 	if (keycode == ROTATE_U)
 		canvas->camera.angle_y += 0.1f;
 	else if (keycode == ROTATE_D)
 		canvas->camera.angle_y -= 0.1f;
-	if (canvas->camera.angle_y >= limit_up)
-	{
-		canvas->camera.angle_y = limit_up - 0.01f;
-	}
-	else if (canvas->camera.angle_y <= limit_dn)
-	{
-		canvas->camera.angle_y = limit_dn + 0.01f;
-	}
+	if (canvas->camera.angle_y >= LIMIT_UP)
+		canvas->camera.angle_y = LIMIT_UP - 0.01f;
+	else if (canvas->camera.angle_y <= LIMIT_DN)
+		canvas->camera.angle_y = LIMIT_DN + 0.01f;
 }
 
-
-void	fdf_hub(t_canvas *canvas)
-{
-	int	idx;
-	int	width;
-	int	height;
-
-	// get_z_reach(canvas);
-	ft_memset(canvas->data_adr, 0, HEIGHT * (size_t)canvas->size_line);
-	idx = 0;
-	width = canvas->map->width;
-	height = canvas->map->height;
-	while (idx < width * height)
-	{
-		if ((idx % width) < (width - 1))
-			draw_if_valid(canvas, idx, idx + 1);
-		if ((idx / width) < (height - 1))
-			draw_if_valid(canvas, idx, idx + width);
-		idx++;
-	}
-	mlx_put_image_to_window(canvas->connection, canvas->window, canvas->image,
-		0, 0);
-	draw_hud(canvas);
-}
-
-void	draw_hud(t_canvas *canvas)
-{
-	char	*hud_text[] = {
-	"controls:",
-	" ",
-	"move:       arrow keys",
-	"zoom:       +/-",
-	"change z:   z/x",
-	"reset:      r",
-	"exit:       esc",
-	NULL};
-	int		x;
-	int		y;
-	int		i;
-
-	x = WIDTH >> 4;
-	y = 30;
-	i = 0;
-	while (hud_text[i])
-	{
-		mlx_string_put(canvas->connection, canvas->window, x, y,
-			HUD_COLOR, (char *)hud_text[i]);
-		i++;
-		y += 18;
-	}
-}
-
-void	draw_if_valid(t_canvas *canvas, int idx_a, int idx_b)
-{
-	t_point	a_point;
-	t_point	b_point;
-	int		idx_limit;
-
-	idx_limit = (canvas->map->width * canvas->map->height) - 1;
-	if (idx_b > idx_limit || idx_a > idx_limit)
-		return ;
-	a_point.x = screen_coord(idx_a, canvas, 'x');
-	a_point.y = screen_coord(idx_a, canvas, 'y');
-	a_point.z = canvas->map->map_data[idx_a];
-	b_point.x = screen_coord(idx_b, canvas, 'x');
-	b_point.z = canvas->map->map_data[idx_b];
-	b_point.y = screen_coord(idx_b, canvas, 'y');
-	draw_line(canvas, a_point, b_point);
-}
-
-
-void swap_coords(int *a, int *b)
-{
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-void draw_line(t_canvas *canvas, t_point a, t_point b)
-{
-	t_ab_line	line;
-
-	line.steep = abs(b.y - a.y) > abs(b.x - a.x);
-    if (line.steep)
-    {
-        swap_coords(&a.x, &a.y);
-        swap_coords(&b.x, &b.y);
-    }
-    if (a.x > b.x)
-    {
-        swap_coords(&a.x, &b.x);
-        swap_coords(&a.y, &b.y);
-    }
-	init_line(&line, &a, &b);
-	bresenham(canvas, &line);
-}
-
-/* int screen_coord(int idx, t_canvas *canvas, char coord)
-{
-    float z = canvas->map->map_data[idx] * canvas->camera.z_mod + 0.1f; // Small Z-offset
-    float x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
-    float y = (idx / canvas->map->width) - (canvas->map->height / 2.0f);
-
-    // Clamp angles to avoid gimbal lock
-    float angle_x = (float)fmod(canvas->camera.angle_x, 2 * M_PI);
-    float angle_y = (float)fmod(canvas->camera.angle_y, 2 * M_PI);
-
-    // Apply X-rotation first (pitch)
-    float y_rot_x = y * cosf(angle_x) - z * sinf(angle_x);
-    float z_rot_x = y * sinf(angle_x) + z * cosf(angle_x);
-
-    // Then apply Y-rotation (yaw)
-    float x_rot_y = x * cosf(angle_y) - z_rot_x * sinf(angle_y);
-    // float z_rot_y = x * sinf(angle_y) + z_rot_x * cosf(angle_y);
-
-    if (coord == 'x')
-        return ((int)(x_rot_y * canvas->camera.scale + WIDTH / 2));
-    else if (coord == 'y')
-        return ((int)(y_rot_x * canvas->camera.scale + HEIGHT / 2));
-    return 0;
-} */
-
-int screen_coord(int idx, t_canvas *canvas, char coord)
-{
-	float	z;
-	float	relat_x;
-	float	relat_y;
-	float	z_rot_y;
-	float	y_rot_x;
-
-    z = canvas->map->map_data[idx] * canvas->camera.z_mod;
-    relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
-    if (coord == 'x')
-	{
-        return ((int)((relat_x * cosf(canvas->camera.angle_x) - z *
-			sinf(canvas->camera.angle_x)) *
-				canvas->camera.scale + WIDTH / 2));
-	}
-    z_rot_y = relat_x * sinf(canvas->camera.angle_x) + z *
-				cosf(canvas->camera.angle_x);
-	relat_y = (idx / canvas->map->width) - (canvas->map->height / 2.0f);
-    y_rot_x = (relat_y) * cosf(canvas->camera.angle_y) - z_rot_y *
-					sinf(canvas->camera.angle_y);
-	return ((int)(y_rot_x * canvas->camera.scale + HEIGHT / 2));
-}
-
-void	init_line(t_ab_line	*line, t_point *a, t_point *b)
-{
-	line->ax = a->x;
-	line->ay = a->y;
-	line->bx = b->x;
-	line->by = b->y;
-	line->dx = b->x - a->x;
-	line->dy = abs(b->y - a->y);
-	line->increm = a->y < b->y;
-	line->z_a = a->z;
-	line->z_b = b->z;
-	if (line->dx)
-		line->z_step = (float)(b->z - a->z) / line->dx;
-	else
-		line->z_step = (float)(b->z - a->z);
-	if (!line->increm)
-		line->increm = -1;
-}
 void	bresenham(t_canvas *canvas, t_ab_line *line)
 {
 	int		x;
@@ -282,219 +107,19 @@ void	bresenham(t_canvas *canvas, t_ab_line *line)
 	}
 }
 
-void	swap_points(t_point *a, t_point *b)
-{
-	t_point	temp;
-
-	temp = *a;
-	*a = *b;
-	*b = temp;
-}
-
-
-void	write_pixel(t_canvas *canvas, int x, int y, size_t color)
+static void	write_pixel(t_canvas *canvas, int x, int y, size_t color)
 {
 	size_t		*pixel_adr;
 	size_t			index;
 
 	index = (size_t)(y * canvas->size_line + x * (canvas->bpp >> 3));
-	if (safe_to_write(x, y, index, canvas->size_line))
+	if ((x >= 0) &&
+		(y >= 0) &&
+		(x < WIDTH) &&
+		(y < HEIGHT) &&
+		(index < (size_t)canvas->size_line * HEIGHT))
 	{
 		pixel_adr = (size_t *)(canvas->data_adr + index);
 		*pixel_adr = color;
 	}
 }
-
-int	safe_to_write(int x, int y, size_t index, int line_size)
-{
-	return ((x >= 0) &&
-			(y >= 0) &&
-			(x < WIDTH) &&
-			(y < HEIGHT) &&
-			(index < (size_t)line_size * HEIGHT));
-}
-
-
-// finish program with esc, with proper destructions
-// create hook with mask for esc (re-watch oceano's video)
-// function receives everything by reference, destroys it and exits
-
-// ChatGPTips:
-
-/*
-Below is a conceptual discussion (no code) of how you can structure the parsing and rendering steps for maximum
-performance in C, formatted with a maximum width of 120 characters:
-
-File Reading and Parsing
-• Minimize I/O calls:
-– Read the file in large chunks (e.g.,
-	with fread/scanf in buffer mode) or even memory-map the file if it’s large,
-so you pay the file I/O overhead only once or very few times.
-• Convert text to numbers efficiently:
-– Avoid repeated string operations (like multiple small strtok calls).
-– Use lower-level parsing functions (e.g.,
-	strtol/strtod) with careful pointer management so you don’t repeatedly
-scan forward or re-check the same characters.
-– If you know the file format is clean (no malformed input),
-	you can skip some error checks.
-• Store in contiguous arrays:
-– As you parse, immediately store x, y, and z into tightly packed arrays (e.g.,
-	struct or parallel arrays).
-A single pass read → parse → store is usually optimal.
-– This keeps data cache-friendly and sequential for later processing.
-
-Data Representation in Memory
-• Keep the grid in a single 2D or 1D array:
-– For example, if your map size is width×height,
-	store it in a float heights[width * height].
-This makes linear traversals (such as applying color or running Bresenham) fast.
-• Precompute color lookups if possible:
-– If z-values are in a known integer (or capped float) range,
-	create a precomputed color array (e.g., colorMap[z])
-so you can convert z → color through a simple index or minimal transformation.
-– This avoids repeatedly computing color components or calling complex math functions.
-
-Bresenham’s Algorithm and Rendering
-• Leverage integer arithmetic:
-– Bresenham’s line-drawing algorithm already uses incremental integer math,
-	which is efficient.
-– If your x, y, and z are integers, keep them in integer form.
-• Store pixel data in a contiguous image buffer:
-– Use, for instance,
-	a single array of RGBA or RGB pixels sized at image_width × image_height.
-– When you compute a point on the line, index into this buffer with image[y
-	* image_width + x] = color.
-• Minimize branching:
-– Excessive conditional checks in tight loops can reduce performance. Bresenham is already fairly lean.
-• Use integer/fixed-point for z-based color:
-– If z-values are floating-point but your color needs are discrete,
-	clamp or convert them to integer indices
-for quick lookups.
-
-Cache Utilization and Memory Layout
-• Ensure data is accessed linearly:
-– The CPU fetches data in cache lines, so avoid “jumping around” in memory.
-– Keep operations that traverse arrays in consistent order so you maximize cache locality.
-• Separate reading from writing where meaningful:
-– Read and parse into a final data structure (e.g.,
-	a height map array) in one pass. Then apply color or line-
-drawing in subsequent passes. This can sometimes help with large data sets.
-
-Potential Optimizations
-• Multi-threading:
-– Split image regions (or sets of lines) among threads. Each thread processes its own data section in parallel.
-– Avoid “false sharing,” where threads write to adjacent memory in the same cache line.
-• Low-level optimizations:
-– If you apply the same transform to many data points (e.g.,
-	converting all z-values to color), you may benefit
-from SIMD intrinsics (SSE/AVX).
-– Bresenham itself is mostly integer-based,
-	so it may already be efficient enough.
-• Memory vs. precision trade-offs:
-– If z is large or high precision, yet you only need discrete color steps,
-	clamp/scale z to a smaller integer
-range (e.g., 0–255). This shrinks your lookup table and improves performance.
-
-Summary Strategy for Speed
-
-Use bulk or memory-mapped file I/O to minimize overhead.
-Parse and store grid data in a single pass into a compact array (e.g., heights[y
-	* width + x]).
-Use a precomputed color table for fast z → color lookups.
-Use Bresenham with integer arithmetic,
-	writing directly into a tightly packed image buffer.
-Keep loops linear and consider parallelization for large workloads.
-Minimize branching and maintain cache-friendly data structures. */
-
-/* Below is a conceptual discussion (no code) of how you can structure the parsing and rendering steps for maximum performance in C:
-
-File Reading and Parsing
-• Minimize I/O calls:
-– Read the file in large chunks (e.g.,
-	with fread/scanf in buffer mode) or even memory-map the file if it’s large,
-	so you pay the file I/O overhead only once or very few times.
-• Convert text to numbers efficiently:
-– Avoid repeated string operations (like multiple small strtok calls).
-– Use lower-level parsing functions (e.g.,
-	strtol/strtod) with careful pointer management so you don’t repeatedly scan forward or re-check the same characters.
-– If you know the file format is clean (no malformed input),
-	you can skip some error checks.
-• Store in contiguous arrays:
-– As you parse, immediately store x, y, and z into tightly packed arrays (e.g.,
-	struct or parallel arrays). A single pass read → parse → store is usually optimal.
-– This keeps data cache-friendly and sequential for later processing.
-
-Data Representation in Memory
-• Keep the grid in a single 2D or 1D array:
-– For example, if your map is size width×height,
-	store it in a float heights[width*height]. This makes linear traversals (such as applying color or running Bresenham over the grid) fast.
-• Precompute color lookups if possible:
-– If your z-values (height) are in a known integer or capped floating range,
-	create a precomputed color table (e.g.,
-	colorMap[z]) so you can convert z → color with a simple array index or a minimal transformation.
-– This avoids repeatedly computing color components or calling complex math functions in a loop.
-
-Bresenham’s Algorithm and Rendering
-• Bresenham is already integer-based:
-– Bresenham’s line-drawing algorithm uses incremental integer arithmetic,
-	which is efficient. Ensure you keep it integer-based when possible (e.g.,
-	if you’re dealing with integer x, y, and z).
-• Store pixel data in a contiguous image buffer:
-– For instance,
-	use an array of 32-bit or 24-bit values (RGBA or RGB) sized at image_width×image_height.
-– When you compute a point on the line,
-	directly index into this buffer with something like image[y * image_width
-	+ x] = color.
-• Minimize branching:
-– Inside the Bresenham loop,
-	branching for each step can be expensive. Try to keep conditionals to essential ones only (typical Bresenham’s approach is already lean).
-• Use integer or simple fixed-point for z-based color:
-– If your z-values are floating-point,
-	but you only need discrete steps for color,
-	cast or clamp them to integer indices to reduce overhead.
-
-Cache Utilization and Memory Layout
-• Ensure data is accessed linearly:
-– The CPU cache system fetches data in chunks (cache lines),
-	so if you traverse in a way that “jumps around” in memory,
-	you lose cache efficiency.
-– Try to keep your inner loops walking linearly across arrays.
-• Separate reading from writing to avoid unnecessary flushes:
-– Complete all your parsing into a final data structure (e.g.,
-	a height map array),
-	then do separate passes for color assignment and line drawing.
-– This can sometimes be more efficient than interleaving operations if the data is large.
-
-Potential Optimizations
-• Multi-threading:
-– Split the image region or set of lines among threads. Each thread processes its own section of data in parallel. Just be sure you don’t cause false sharing (where threads write to adjacent memory addresses in the same cache line).
-• Low-level optimizations:
-– In some cases,
-	using SIMD intrinsics (SSE/AVX) can help if you are applying the same transformation on many data points (e.g.,
-	if you do a final pass to convert all z values to color).
-– Be mindful that Bresenham itself is mostly integer logic,
-	so it’s already quite efficient.
-
-Memory vs. Precision Trade-offs
-• If z is large or high precision and you only need discrete color steps,
-	clamp or scale z to a smaller range (e.g. 0–255). This shrinks your lookup table and quickens color indexing.
-• If you need full floating precision for line-data computation,
-	keep that in a parallel array,
-	but for color mapping store an integer-friendly version.
-
-Summary Strategy for Speed
-
-Read the entire file (or large chunks) in one go using buffered or memory-mapped I/O.
-In a single pass, parse each triple (x, y,
-	z) directly into a compact array (e.g., heights[y * width
-	+ x]) and store integer-friendly z-values if possible.
-Use a precomputed color table for lookup so you don’t repeatedly compute color on the fly.
-Implement Bresenham on this array,
-	writing into a tightly packed image buffer with minimal branching and integer arithmetic.
-Keep loops linear, minimize pointer overhead,
-	and consider parallelization if the data is large enough to benefit.
-These techniques will help you keep cache hits high,
-	reduce overhead from string parsing and repeated function calls,
-	and let the CPU spend its cycles on the actual line drawing rather than on data manipulation.
-
-	*/

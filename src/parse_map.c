@@ -6,11 +6,16 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 13:27:24 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/27 13:23:09 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/28 18:18:00 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
+
+static t_map	*get_map_info(int fd);
+static int		mapfill(t_map *map, int fd);
+static void		get_map_data(t_map *map, char **ptr, int x, int y);
+static int		get_line_length(int fd);
 
 t_map	*parse_map(char *file_path)
 {
@@ -36,15 +41,7 @@ t_map	*parse_map(char *file_path)
 	return (map);
 }
 
-void	free_map(t_map *map)
-{
-	if (map->map_data)
-		free(map->map_data);
-	if (map)
-		free(map);
-}
-
-t_map	*get_map_info(int fd)
+static t_map	*get_map_info(int fd)
 {
 	int		line_len;
 	t_map	*map;
@@ -71,7 +68,7 @@ t_map	*get_map_info(int fd)
 	return (map);
 }
 
-int	mapfill(t_map *map, int fd)
+static int	mapfill(t_map *map, int fd)
 {
 	char	*line;
 	char	*ptr;
@@ -94,7 +91,7 @@ int	mapfill(t_map *map, int fd)
 	return (1);
 }
 
-void	get_map_data(t_map *map, char **ptr, int x, int y)
+static void	get_map_data(t_map *map, char **ptr, int x, int y)
 {
 	map->map_data[y * map->width + x] = ft_atoi(*ptr);
 	(*ptr) += numlen(map->map_data[y * map->width + x]);
@@ -108,7 +105,7 @@ void	get_map_data(t_map *map, char **ptr, int x, int y)
 }
 
 
-int	get_line_length(int fd)
+static int	get_line_length(int fd)
 {
 	char	*line;
 	char	**split_line;
@@ -130,74 +127,3 @@ int	get_line_length(int fd)
 	free(split_line);
 	return (len);
 }
-
-int	gnl_by_ref(int fd, char **line)
-{
-	char	*tmp;
-
-	tmp = get_next_line(fd);
-	if (!tmp) 
-		return (0);
-	*line = tmp;
-	return (1);
-}
-
-int	numlen(int num)
-{
-	int len;
-
-	if (num == INT_MIN)
-    	return (11);
-	if (num < 0)
-		num = -num;
-	len = 1;
-	while(num >= 10)
-	{
-		num /= 10;
-		len++;
-	}
-	return (len);
-}
-
-void get_z_reach(t_canvas *canvas)
-{
-	int	z;
-	int map_size;
-	int i;
-
-    if (!canvas->map || !canvas->map->map_data)
-		return;
-	map_size = canvas->map->width * canvas->map->height;
-    canvas->map->z_max = INT_MIN;
-    canvas->map->z_min = INT_MAX;
-	i = -1;
-	while (++i < map_size)
-	{
-		z = canvas->map->map_data[i];
-		if (z > canvas->map->z_max)
-			canvas->map->z_max = z;
-		if (z < canvas->map->z_min)
-			canvas->map->z_min = z;
-	}
-    if (canvas->map->z_max == canvas->map->z_min)
-		canvas->map->z_max = canvas->map->z_min + 1;
-}
-
-// set errno to zero
-// GNL gets a line
-// a function that:
-	//checks for its validity (if it has one space between values, values shouldn't surpass INT_MAX)
-	// get value for width (how many values we have)
-	// width is a static int that compares itself with the next value (returns invalid map if not equal)
-// increment height
-// ft_strjoin appends it with the next
-// malloc 1d int array [y * width + x] when finished checking and parsing
-// fills this array with atoi in each string of nums
-
-// ANOTHER METHOD WITH SPLIT
-// errno to zero
-// calls GNL
-// splits line with split, returning a char** with each value as a single string -> (how safe is this?
-																				// what if the map has
-																				// double spaces ???)
-// 
