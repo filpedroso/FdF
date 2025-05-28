@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:38 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/27 14:17:22 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/28 18:00:53 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,13 +45,11 @@ int	key_hub(int keycode, t_canvas *canvas)
 {
 	if (keycode == KEY_ESC)
 		return (close_window(canvas));
-	if (keycode == ROTATE_U)
-		canvas->camera.angle_y += 0.1f;
-	else if (keycode == ROTATE_D)
-		canvas->camera.angle_y -= 0.1f;
-	else if (keycode == ROTATE_R)
-		canvas->camera.angle_x += 0.1f;
+	if (keycode == ROTATE_U || keycode == ROTATE_D)
+		update_y(keycode, canvas);
 	else if (keycode == ROTATE_L)
+		canvas->camera.angle_x += 0.1f;
+	else if (keycode == ROTATE_R)
 		canvas->camera.angle_x -= 0.1f;
 	else if (keycode == ZOOM_IN)
 		canvas->camera.scale++;
@@ -68,6 +66,28 @@ int	key_hub(int keycode, t_canvas *canvas)
 		reset_values(canvas);
 	return (fdf_hub(canvas), 1);
 }
+
+void update_y(int keycode, t_canvas *canvas)
+{
+	float	limit_up;
+	float	limit_dn;
+
+	limit_up = 3.1f;
+	limit_dn = -0.01f;
+	if (keycode == ROTATE_U)
+		canvas->camera.angle_y += 0.1f;
+	else if (keycode == ROTATE_D)
+		canvas->camera.angle_y -= 0.1f;
+	if (canvas->camera.angle_y >= limit_up)
+	{
+		canvas->camera.angle_y = limit_up - 0.01f;
+	}
+	else if (canvas->camera.angle_y <= limit_dn)
+	{
+		canvas->camera.angle_y = limit_dn + 0.01f;
+	}
+}
+
 
 void	fdf_hub(t_canvas *canvas)
 {
@@ -194,23 +214,24 @@ int screen_coord(int idx, t_canvas *canvas, char coord)
 {
 	float	z;
 	float	relat_x;
+	float	relat_y;
 	float	z_rot_y;
 	float	y_rot_x;
 
     z = canvas->map->map_data[idx] * canvas->camera.z_mod;
     relat_x = (idx % canvas->map->width) - (canvas->map->width / 2.0f);
-    if (coord == 'y')
+    if (coord == 'x')
 	{
-        return ((int)((relat_x * cosf(canvas->camera.angle_y) - z *
-			sinf(canvas->camera.angle_y)) *
-				canvas->camera.scale + HEIGHT / 2));
+        return ((int)((relat_x * cosf(canvas->camera.angle_x) - z *
+			sinf(canvas->camera.angle_x)) *
+				canvas->camera.scale + WIDTH / 2));
 	}
-    z_rot_y = relat_x * sinf(canvas->camera.angle_y) + z *
-				cosf(canvas->camera.angle_y);
-    y_rot_x = ((idx / canvas->map->width) - (canvas->map->height / 2.0f)) * 
-				cosf(canvas->camera.angle_x) - z_rot_y *
-					sinf(canvas->camera.angle_x);
-	return ((int)(y_rot_x * canvas->camera.scale + WIDTH / 2));
+    z_rot_y = relat_x * sinf(canvas->camera.angle_x) + z *
+				cosf(canvas->camera.angle_x);
+	relat_y = (idx / canvas->map->width) - (canvas->map->height / 2.0f);
+    y_rot_x = (relat_y) * cosf(canvas->camera.angle_y) - z_rot_y *
+					sinf(canvas->camera.angle_y);
+	return ((int)(y_rot_x * canvas->camera.scale + HEIGHT / 2));
 }
 
 void	init_line(t_ab_line	*line, t_point *a, t_point *b)

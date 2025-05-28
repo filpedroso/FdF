@@ -6,7 +6,7 @@
 /*   By: filpedroso <filpedroso@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 18:44:33 by fpedroso          #+#    #+#             */
-/*   Updated: 2025/05/27 13:26:56 by filpedroso       ###   ########.fr       */
+/*   Updated: 2025/05/28 16:35:03 by filpedroso       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,7 @@ void	reset_values(t_canvas *canvas);
 
 size_t get_color(float z, t_canvas *canvas);
 void	init_color_lut(t_canvas *canvas);
+void update_y(int keycode, t_canvas *canvas);
 
 
 
